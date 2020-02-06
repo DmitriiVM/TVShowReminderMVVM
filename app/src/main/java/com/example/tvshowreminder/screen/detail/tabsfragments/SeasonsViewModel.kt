@@ -12,8 +12,8 @@ class SeasonsViewModel @Inject constructor(private val repository: TvShowReposit
 
     private val language = getDeviceLanguage()
 
-    fun getSeasonDetails(tvId: Int, seasonNumber: Int, isRequiredToLoad: Boolean): LiveData<Resource<SeasonDetails>>{
-        return repository.getSeasonDetails(tvId, seasonNumber, language, isRequiredToLoad)
+    fun getSeasonDetails(tvId: Int, seasonNumber: Int): LiveData<Resource<SeasonDetails>>{
+        return repository.getSeasonDetails(tvId, seasonNumber, language)
     }
 
 }

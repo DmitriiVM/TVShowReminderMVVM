@@ -17,7 +17,7 @@ import com.example.tvshowreminder.util.DB_NAME
 @Database(
     entities = [TvShow::class, LatestTvShow::class,
     PopularTvShow::class, TvShowDetails::class, SeasonDetails::class,
-    Episode::class], version = 8, exportSchema = false
+    Episode::class], version = 1, exportSchema = false
 )
 abstract class TvShowDatabase : RoomDatabase() {
 

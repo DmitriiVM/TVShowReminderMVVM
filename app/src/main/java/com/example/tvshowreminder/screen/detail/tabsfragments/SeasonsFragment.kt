@@ -3,6 +3,7 @@ package com.example.tvshowreminder.screen.detail.tabsfragments
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -61,18 +62,14 @@ class SeasonsFragment : Fragment(){
         adapter = SeasonsRecyclerViewAdapter()
         recyclerView.adapter = adapter
 
-        if (savedInstanceState == null){
-            subscribeObservers(true)
-        } else {
-            subscribeObservers(false)
-        }
+        subscribeObservers()
 
     }
 
-    private fun subscribeObservers(isRequiredToLoad: Boolean) {
+    private fun subscribeObservers() {
         val seasonsList = mutableListOf<SeasonDetails>()
         for (i in 1..(numberOfSeasons!!)) {
-            viewModel.getSeasonDetails(tvId!!, i, isRequiredToLoad)
+            viewModel.getSeasonDetails(tvId!!, i)
                 .observe(viewLifecycleOwner, Observer { resource ->
                     when (resource) {
                         is Resource.Success -> {

@@ -2,6 +2,7 @@ package com.example.tvshowreminder.data.database
 
 import android.util.Log
 import androidx.lifecycle.LiveData
+import androidx.paging.DataSource
 import androidx.room.*
 import com.example.tvshowreminder.data.pojo.episode.Episode
 import com.example.tvshowreminder.data.pojo.episode.NextEpisodeToAir
@@ -18,14 +19,14 @@ import io.reactivex.Single
 @Dao
 interface TvShowDao {
 
-    @Query("SELECT * FROM popular_tv_shows_table")
-    fun getPopularTvShowsList(): LiveData<List<TvShow>>
+    @Query("SELECT * FROM popular_tv_shows_table ORDER BY popularity DESC")
+    fun getPopularTvShowsList(): DataSource.Factory<Int, TvShow>
 
-    @Query("SELECT * FROM latest_tv_shows_table")
-    fun getLatestTvShowsList(): LiveData<List<TvShow>>
+    @Query("SELECT * FROM latest_tv_shows_table ORDER BY first_air_date DESC")
+    fun getLatestTvShowsList(): DataSource.Factory<Int, TvShow>
 
     @Query("SELECT * FROM tv_show_details")
-    fun getFavouriteTvShowsList(): LiveData<List<TvShowDetails>>
+    fun getFavouriteTvShowsList(): DataSource.Factory<Int, TvShow>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE, entity = PopularTvShow::class)
     fun insertPopularTvShowList(tvShowList: List<TvShow>)
@@ -40,7 +41,7 @@ interface TvShowDao {
     fun deleteLatestTvShows()
 
     @Query("SELECT * FROM tv_show_details WHERE original_name LIKE '%' || :query || '%' OR name LIKE '%' || :query || '%'")
-    fun searchTvShowsList(query: String): LiveData<List<TvShow>>
+    fun searchTvShowsList(query: String): DataSource.Factory<Int, TvShow>
 
     @Query("SELECT * FROM tv_show_details WHERE id = :tvShowId")
     fun getFavouriteTvShow(tvShowId: Int): LiveData<TvShowDetails>
@@ -57,9 +58,8 @@ interface TvShowDao {
     @Query("SELECT * FROM episode WHERE show_id = :tvShowId AND season_number = :seasonNumber")
     fun getEpisodesForSeason(tvShowId: Int, seasonNumber: Int) : LiveData<List<Episode>>
 
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertFavouriteSeasonDetails(seasonDetails: SeasonDetails): Completable
+    fun insertFavouriteSeasonDetails(seasonDetails: SeasonDetails)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertEpisodes(episodes: List<Episode>)

@@ -2,6 +2,7 @@ package com.example.tvshowreminder.screen.main
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
+import androidx.paging.PagedList
 import com.example.tvshowreminder.data.TvShowRepository
 import com.example.tvshowreminder.data.pojo.general.TvShow
 import com.example.tvshowreminder.util.Resource
@@ -14,7 +15,7 @@ class MainViewModel @Inject constructor(private val repository: TvShowRepository
     private val language = getDeviceLanguage()
     private val currentDate = getCurrentDate()
 
-    fun getPopularTvShowList(isRequiredToLoad: Boolean) =
+    fun getPopularTvShowList(isRequiredToLoad: Boolean): LiveData<Resource<PagedList<TvShow>>> =
         repository.getPopularTvShowList(language, isRequiredToLoad)
 
     fun getLatestTvShowList(isRequiredToLoad: Boolean) =
@@ -22,10 +23,6 @@ class MainViewModel @Inject constructor(private val repository: TvShowRepository
 
     fun getFavouriteTvShowList(isRequiredToLoad: Boolean) =
         repository.getFavouriteTvShowList(isRequiredToLoad)
-
-    fun getPopularNextPage() = repository.getPopularNextPage(getDeviceLanguage())
-
-    fun getLatestNextPage() = repository.getLatestNextPage(currentDate, language)
 
     fun searchTvShowsList(query: String)
             = repository.searchTvShowsList(query, language)

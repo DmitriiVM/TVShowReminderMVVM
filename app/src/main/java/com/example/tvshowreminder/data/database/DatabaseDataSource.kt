@@ -18,8 +18,6 @@ class DatabaseDataSource @Inject constructor(
     private val tvShowDatabase: TvShowDatabase
 ) : DatabaseContract {
 
-
-
     override fun getPopularTvShowList()
             = tvShowDatabase.tvShowDao().getPopularTvShowsList()
 
@@ -107,7 +105,7 @@ class DatabaseDataSource @Inject constructor(
         }
     }
 
-    override fun searchFavouriteTvShowsList(query: String): LiveData<List<TvShow>> =
+    override fun searchFavouriteTvShowsList(query: String)  =
         tvShowDatabase.tvShowDao().searchTvShowsList(query)
 
 }

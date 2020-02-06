@@ -1,6 +1,7 @@
 package com.example.tvshowreminder.data.database
 
 import androidx.lifecycle.LiveData
+import androidx.paging.DataSource
 import com.example.tvshowreminder.data.pojo.season.SeasonDetails
 import com.example.tvshowreminder.data.pojo.general.TvShow
 import com.example.tvshowreminder.data.pojo.general.TvShowDetails
@@ -10,9 +11,9 @@ import io.reactivex.Single
 
 interface DatabaseContract {
 
-    fun getPopularTvShowList(): LiveData<List<TvShow>>
-    fun getLatestTvShowList(): LiveData<List<TvShow>>
-    fun getFavouriteTvShowList(): LiveData<List<TvShowDetails>>
+    fun getPopularTvShowList(): DataSource.Factory<Int, TvShow>
+    fun getLatestTvShowList(): DataSource.Factory<Int, TvShow>
+    fun getFavouriteTvShowList(): DataSource.Factory<Int, TvShow>
 
     fun insertPopularTvShowList(tvShowList: List<TvShow>, successCallback: () -> Unit)
     fun insertLatestTvShowList(tvShowList: List<TvShow>, successCallback: () -> Unit)
@@ -25,7 +26,7 @@ interface DatabaseContract {
     fun insertFavouriteSeasonDetails(seasonDetails: SeasonDetails)
     fun deleteFavouriteSeasonDetails(tvShowId: Int)
 
-    fun searchFavouriteTvShowsList(query: String): LiveData<List<TvShow>>
+    fun searchFavouriteTvShowsList(query: String): DataSource.Factory<Int, TvShow>
     fun deletePopularTvShows()
     fun deleteLatestTvShows()
 }

@@ -5,12 +5,6 @@ import com.example.tvshowreminder.data.TvShowRepository
 import com.example.tvshowreminder.data.pojo.general.TvShowDetails
 import com.example.tvshowreminder.util.Resource
 import com.example.tvshowreminder.util.getDeviceLanguage
-import io.reactivex.Completable
-import io.reactivex.Scheduler
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
 class DetailsViewModel @Inject constructor(private val repository: TvShowRepository): ViewModel() {

@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -27,14 +28,14 @@ import kotlinx.android.synthetic.main.dialog_layout.view.*
 import javax.inject.Inject
 
 class MainFragment : Fragment(),
-    TvShowRecyclerAdapter.OnTvShowClickListener,
+    TvShowListAdapter.OnTvShowClickListener,
     BottomNavigationView.OnNavigationItemSelectedListener {
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
     private val viewModel by viewModels<MainViewModel> { viewModelFactory }
 
-    private lateinit var adapter: TvShowRecyclerAdapter
+    private lateinit var adapter: TvShowListAdapter
     private lateinit var searchView: SearchView
     private var menuItemId = R.id.menu_item_popular
     private var toast: Toast? = null
@@ -87,42 +88,16 @@ class MainFragment : Fragment(),
         }
     }
 
-
     private fun setRecyclerView() {
         if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT){
             recyclerView.layoutManager = LinearLayoutManager(requireContext())
         } else {
             recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
         }
-
-        adapter = TvShowRecyclerAdapter()
+        adapter = TvShowListAdapter()
         recyclerView.adapter = adapter
+        recyclerView.itemAnimator = null
         adapter.setOnShowClickListener(this)
-
-        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-                handlePagination()
-            }
-        })
-    }
-
-    fun handlePagination() {
-        if (menuItemId == R.id.menu_item_shows_to_follow || !isSearching) {
-            return
-        }
-        if (!recyclerView.canScrollVertically(1)
-            && ConnectivityHelper.isOnline(requireContext())
-        ) {
-            when (menuItemId) {
-                R.id.menu_item_popular -> {
-                    viewModel.getPopularNextPage()
-                }
-                R.id.menu_item_latest -> {
-                    viewModel.getLatestNextPage()
-                }
-            }
-        }
     }
 
     private fun subscribeForPopularTvShows(isRequiredToLoad: Boolean) {
@@ -133,14 +108,13 @@ class MainFragment : Fragment(),
                 }
                 is Resource.Success -> {
                     progressBar.visibility = View.INVISIBLE
-                    adapter.setItems(resource.data)
+                    adapter.submitList(resource.data)
 
                 }
                 is Resource.SuccessWithMessage -> {
                     progressBar.visibility = View.INVISIBLE
-                    adapter.setItems(resource.data)
+                    adapter.submitList(resource.data)
                     showMessage(resource.networkErrorMessage)
-
                 }
             }
         })
@@ -154,12 +128,12 @@ class MainFragment : Fragment(),
                 }
                 is Resource.Success -> {
                     progressBar.visibility = View.INVISIBLE
-                    adapter.setItems(resource.data)
+                    adapter.submitList(resource.data)
 
                 }
                 is Resource.SuccessWithMessage -> {
                     progressBar.visibility = View.INVISIBLE
-                    adapter.setItems(resource.data)
+                    adapter.submitList(resource.data)
                     showMessage(resource.networkErrorMessage)
                 }
             }
@@ -175,7 +149,7 @@ class MainFragment : Fragment(),
                 is Resource.Success -> {
                     progressBar.visibility = View.INVISIBLE
                     if (menuItemId == R.id.menu_item_shows_to_follow){
-                        adapter.setItems(resource.data)
+                        adapter.submitList(resource.data)
                     }
                 }
             }
@@ -191,7 +165,7 @@ class MainFragment : Fragment(),
                 }
                 is Resource.Success -> {
                     progressBar.visibility = View.INVISIBLE
-                    adapter.setItems(resource.data)
+                    adapter.submitList(resource.data)
                     isSearching = false
                 }
             }
@@ -206,7 +180,7 @@ class MainFragment : Fragment(),
                 }
                 is Resource.Success -> {
                     progressBar.visibility = View.INVISIBLE
-                    adapter.setItems(resource.data)
+                    adapter.submitList(resource.data)
                 }
             }
         })
@@ -219,15 +193,12 @@ class MainFragment : Fragment(),
             when (menuItemId){
                 R.id.menu_item_popular -> {
                     subscribeForPopularTvShows(true)
-                    recyclerView.smoothScrollToPosition(0)
                 }
                 R.id.menu_item_latest -> {
                     subscribeForLatestTvShows(true)
-                    recyclerView.smoothScrollToPosition(0)
                 }
                 R.id.menu_item_shows_to_follow -> {
                     subscribeForFavouriteTvShows(true)
-                    recyclerView.smoothScrollToPosition(0)
                 }
             }
         }
