@@ -1,0 +1,47 @@
+<resources>
+    <string name="app_name">TVShowReminder</string>
+
+    <string name="about_app">\t\tПриложение позволяет получать уведомления о выходе новых серий сериалов, на которые пользователь подписался.
+        Список сериалов, уведомления которых будет получено, находится в разделе "Мой список".
+        \n\t\tУведомление будет получено, даже если приложение не запущено.
+    \n\t\tПриложение использует данные с сайта www.themoviedb.org.</string>
+
+    <string name="option_menu_search">Поиск</string>
+    <string name="options_menu_settings">Настройки</string>
+    <string name="options_menu_about">О приложении</string>
+    <string name="unknown">Неизвестно</string>
+    <string name="in_production">Выпускается в настоящее время:</string>
+    <string name="air_date">Дата выхода:</string>
+    <string name="homepage">Официальный сайт:</string>
+    <string name="add_to_notification">Добавить в список уведомлений</string>
+    <string name="name">Название:</string>
+    <string name="season">Сезон:</string>
+    <string name="episode">Эпизод:</string>
+    <string name="rate">Рейтинг:</string>
+    <string name="popularity">Популярность:</string>
+    <string name="sound_alarm">Звуковой сигнал</string>
+    <string name="use_sound">Использовать звуковой сигнал при уведомлении</string>
+    <string name="photo_type">Фото в списке</string>
+    <string name="display_photo">Отображать сериалы в списке в виде фотографии</string>
+    <string name="notification_content_title">Ура, новая серия! </string>
+    <string name="notification_text_1">Сезон</string>
+    <string name="notification_text_2">серия</string>
+    <string name="button_add">Добавить в список уведомлений</string>
+    <string name="button_delete">Удалить из списка уведомлений</string>
+    <string name="text_yes">Да</string>
+    <string name="text_no">Нет</string>
+    <string name="title_description">Описание</string>
+    <string name="title_next_episode">Следующая серия</string>
+    <string name="title_season">Сезоны</string>
+    <string name="error_message">Ошибка</string>
+    <string name="error_network_problem_1">Проблема с получением данных через интернет. Показан список, сохраненный в предыдущем сеансе</string>
+    <string name="error_network_problem_2">Проблема с получением данных через интернет</string>
+    <string name="message_no_search_matches">По вашему запросу ничего не найдено</string>
+    <string name="message_no_tv_shows">Список сериалов пуст</string>
+    <string name="message_no_internet">Для поиска вы должны быть подключены к интернету</string>
+    <string name="message_details_without_internet">Для просмотра информации о сериале вы должны быть подключены к интернету</string>
+    <string name="bottom_menu_popular">Популярные</string>
+    <string name="bottom_menu_latest">Новые</string>
+    <string name="bottom_menu_my_list">Мой список</string>
+
+</resources>
