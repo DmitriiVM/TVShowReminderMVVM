@@ -5,7 +5,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tvshowreminder.R
 import com.example.tvshowreminder.data.pojo.general.TvShow
@@ -13,7 +12,9 @@ import com.example.tvshowreminder.util.ErrorImageOrientation
 import com.example.tvshowreminder.util.setImage
 import kotlinx.android.synthetic.main.tvshow_item.view.*
 
-class TvShowListAdapter: PagedListAdapter<TvShow, TvShowListAdapter.TvShowViewHolder>(tvShowDiffCallback) {
+class TvShowListAdapter: PagedListAdapter<TvShow, TvShowListAdapter.TvShowViewHolder>(
+    tvShowDiffCallback
+) {
 
     interface OnTvShowClickListener {
         fun onTvShowClick(tvId: Int)

@@ -16,6 +16,5 @@ class NewEpisodeReceiver: BroadcastReceiver() {
         tvShow?.let { context?.let {
             showNotification(context, tvShow)
         } }
-
     }
 }

@@ -1,44 +1,42 @@
 package com.example.tvshowreminder.data.database
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.paging.DataSource
 import androidx.room.*
 import com.example.tvshowreminder.data.pojo.episode.Episode
-import com.example.tvshowreminder.data.pojo.episode.NextEpisodeToAir
 import com.example.tvshowreminder.data.pojo.season.SeasonDetails
-import com.example.tvshowreminder.data.pojo.general.LatestTvShow
-import com.example.tvshowreminder.data.pojo.general.PopularTvShow
 import com.example.tvshowreminder.data.pojo.general.TvShow
 import com.example.tvshowreminder.data.pojo.general.TvShowDetails
-import io.reactivex.Completable
-import io.reactivex.Flowable
-import io.reactivex.Single
-
 
 @Dao
 interface TvShowDao {
-
-    @Query("SELECT * FROM popular_tv_shows_table ORDER BY popularity DESC")
+    
+    @Query("SELECT * FROM tv_shows WHERE tvShowType = 'popular' ORDER BY popularity DESC")
     fun getPopularTvShowsList(): DataSource.Factory<Int, TvShow>
 
-    @Query("SELECT * FROM latest_tv_shows_table ORDER BY first_air_date DESC")
+    @Query("SELECT * FROM tv_shows WHERE tvShowType = 'latest' ORDER BY first_air_date DESC")
     fun getLatestTvShowsList(): DataSource.Factory<Int, TvShow>
+
+    @Query("SELECT * FROM tv_shows WHERE tvShowType = 'search' ORDER BY popularity DESC")
+    fun getSearchResult(): DataSource.Factory<Int, TvShow>
+
+    @Query("SELECT * FROM tv_shows WHERE tvShowType = 'search' ORDER BY popularity DESC")
+    fun getSearchResult1111111(): LiveData<List<TvShow>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertTvShowList(tvShowList: List<TvShow>)
+
+    @Query("DELETE FROM tv_shows WHERE tvShowType = 'popular'")
+    fun deletePopularTvShows()
+
+    @Query("DELETE FROM tv_shows WHERE tvShowType = 'latest'")
+    fun deleteLatestTvShows()
+
+    @Query("DELETE FROM tv_shows WHERE tvShowType = 'search'")
+    fun deleteSearchResult()
 
     @Query("SELECT * FROM tv_show_details")
     fun getFavouriteTvShowsList(): DataSource.Factory<Int, TvShow>
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE, entity = PopularTvShow::class)
-    fun insertPopularTvShowList(tvShowList: List<TvShow>)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE, entity = LatestTvShow::class)
-    fun insertLatestTvShowList(tvShowList: List<TvShow>)
-
-    @Query("DELETE FROM popular_tv_shows_table")
-    fun deletePopularTvShows()
-
-    @Query("DELETE FROM latest_tv_shows_table")
-    fun deleteLatestTvShows()
 
     @Query("SELECT * FROM tv_show_details WHERE original_name LIKE '%' || :query || '%' OR name LIKE '%' || :query || '%'")
     fun searchTvShowsList(query: String): DataSource.Factory<Int, TvShow>
@@ -66,6 +64,4 @@ interface TvShowDao {
 
     @Query("DELETE FROM seasons_details WHERE id = :tvShowId")
     fun deleteFavouriteSeasonDetail(tvShowId: Int)
-
-
 }

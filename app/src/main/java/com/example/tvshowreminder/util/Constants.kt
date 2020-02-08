@@ -31,6 +31,18 @@ const val KEY_TV_ID = "tv_id"
 const val KEY_NUMBER_OF_SEASONS = "number_of_seasons"
 const val KEY_NEXT_EPISODE = "next_episode"
 const val TV_SHOW_ID = "tv_show_id"
+const val QUERY = "query"
+const val FRAGMENT_TYPE = "fragment_type"
+
+const val TYPE_POPULAR = "popular"
+const val TYPE_LATEST = "latest"
+const val TYPE_SEARCH = "search"
+
+const val FRAGMENT_POPULAR = "popular"
+const val FRAGMENT_LATEST = "latest"
+const val FRAGMENT_FAVOURITE = "favourite"
+const val FRAGMENT_SEARCH = "search"
+const val FRAGMENT_SEARCH_IN_FAVOURITE = "search_in_favourite"
 
 const val ERROR_MESSAGE= "Ошибка"
 const val ERROR_MESSAGE_NETWORK_PROBLEM_1 = "Проблема с получением данных через интернет. Показан список, сохраненный в предыдущем сеансе"

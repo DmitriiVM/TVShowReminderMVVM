@@ -13,10 +13,16 @@ interface DatabaseContract {
 
     fun getPopularTvShowList(): DataSource.Factory<Int, TvShow>
     fun getLatestTvShowList(): DataSource.Factory<Int, TvShow>
-    fun getFavouriteTvShowList(): DataSource.Factory<Int, TvShow>
+    fun getSearchResult(): DataSource.Factory<Int, TvShow>
 
-    fun insertPopularTvShowList(tvShowList: List<TvShow>, successCallback: () -> Unit)
-    fun insertLatestTvShowList(tvShowList: List<TvShow>, successCallback: () -> Unit)
+    fun deletePopularTvShows()
+    fun deleteLatestTvShows()
+    fun deleteSearchResult()
+
+    fun insertTvShowList(tvShowList: List<TvShow>, successCallback: () -> Unit)
+
+    fun getFavouriteTvShowList(): DataSource.Factory<Int, TvShow>
+    fun searchFavouriteTvShowsList(query: String): DataSource.Factory<Int, TvShow>
 
     fun getTvShow(tvShowId: Int): LiveData<TvShowDetails>
     fun insertTvShow(tvShowDetails: TvShowDetails)
@@ -26,7 +32,5 @@ interface DatabaseContract {
     fun insertFavouriteSeasonDetails(seasonDetails: SeasonDetails)
     fun deleteFavouriteSeasonDetails(tvShowId: Int)
 
-    fun searchFavouriteTvShowsList(query: String): DataSource.Factory<Int, TvShow>
-    fun deletePopularTvShows()
-    fun deleteLatestTvShows()
+
 }

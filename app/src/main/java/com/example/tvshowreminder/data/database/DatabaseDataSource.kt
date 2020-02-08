@@ -3,6 +3,7 @@ package com.example.tvshowreminder.data.database
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
+import androidx.paging.DataSource
 import com.example.tvshowreminder.data.pojo.episode.Episode
 import com.example.tvshowreminder.data.pojo.season.SeasonDetails
 import com.example.tvshowreminder.data.pojo.general.TvShow
@@ -24,6 +25,9 @@ class DatabaseDataSource @Inject constructor(
     override fun getLatestTvShowList()
             = tvShowDatabase.tvShowDao().getLatestTvShowsList()
 
+    override fun getSearchResult() =
+        tvShowDatabase.tvShowDao().getSearchResult()
+
     override fun getFavouriteTvShowList()
             = tvShowDatabase.tvShowDao().getFavouriteTvShowsList()
 
@@ -36,6 +40,12 @@ class DatabaseDataSource @Inject constructor(
     override fun deleteLatestTvShows(){
         AppExecutors.diskIO.execute {
             tvShowDatabase.tvShowDao().deleteLatestTvShows()
+        }
+    }
+
+    override fun deleteSearchResult(){
+        AppExecutors.diskIO.execute {
+            tvShowDatabase.tvShowDao().deleteSearchResult()
         }
     }
 
@@ -53,19 +63,9 @@ class DatabaseDataSource @Inject constructor(
         return result
     }
 
-    override fun insertPopularTvShowList(tvShowList: List<TvShow>, successCallback: () -> Unit) {
+    override fun insertTvShowList(tvShowList: List<TvShow>, successCallback: () -> Unit) {
         AppExecutors.diskIO.execute {
-            tvShowDatabase.tvShowDao().insertPopularTvShowList(tvShowList).let {
-                AppExecutors.mainThread.execute {
-                    successCallback()
-                }
-            }
-        }
-    }
-
-    override fun insertLatestTvShowList(tvShowList: List<TvShow>, successCallback: () -> Unit) {
-        AppExecutors.diskIO.execute {
-            tvShowDatabase.tvShowDao().insertLatestTvShowList(tvShowList).let {
+            tvShowDatabase.tvShowDao().insertTvShowList(tvShowList).let {
                 AppExecutors.mainThread.execute {
                     successCallback()
                 }
@@ -107,5 +107,4 @@ class DatabaseDataSource @Inject constructor(
 
     override fun searchFavouriteTvShowsList(query: String)  =
         tvShowDatabase.tvShowDao().searchTvShowsList(query)
-
 }

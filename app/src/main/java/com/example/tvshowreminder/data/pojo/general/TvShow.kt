@@ -30,5 +30,10 @@ data class TvShow(
     val voteAverage: Double? = null,
     @SerializedName("vote_count")
     @ColumnInfo(name = "vote_count")
-    val voteCount: Int? = null
+    val voteCount: Int? = null,
+
+    var tvShowType: String? = null
 )
+
+
+

@@ -1,11 +1,11 @@
 package com.example.tvshowreminder.data
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.PagedList
 import com.example.tvshowreminder.data.database.DatabaseContract
 import com.example.tvshowreminder.data.network.MovieDbApiService
+import com.example.tvshowreminder.util.TYPE_POPULAR
 import com.example.tvshowreminder.data.pojo.general.TvShow
 import com.example.tvshowreminder.data.pojo.general.TvShowsList
 import com.example.tvshowreminder.util.getDeviceLanguage
@@ -44,7 +44,8 @@ class PopularBoundaryCallback(
                 override fun onResponse(call: Call<TvShowsList>, response: Response<TvShowsList>) {
                     if (response.isSuccessful){
                         response.body()?.showsList?.let {tvShowList ->
-                            database.insertPopularTvShowList(tvShowList){
+                            tvShowList.forEach { it.tvShowType = TYPE_POPULAR }
+                            database.insertTvShowList(tvShowList){
                                 isLoading = false
                             }
                         }

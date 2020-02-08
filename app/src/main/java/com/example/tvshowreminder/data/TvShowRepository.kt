@@ -1,25 +1,21 @@
 package com.example.tvshowreminder.data
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
+import androidx.paging.DataSource
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import com.example.tvshowreminder.data.database.DatabaseContract
 import com.example.tvshowreminder.data.network.MovieDbApiService
+import com.example.tvshowreminder.data.pojo.general.*
 import com.example.tvshowreminder.data.pojo.season.SeasonDetails
-import com.example.tvshowreminder.data.pojo.general.TvShow
-import com.example.tvshowreminder.data.pojo.general.TvShowDetails
-import com.example.tvshowreminder.data.pojo.general.TvShowsList
 import com.example.tvshowreminder.util.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class TvShowRepository @Inject constructor(private val database: DatabaseContract) {
+class TvShowRepository @Inject constructor(val database: DatabaseContract) {
 
     private var page = 1
 
@@ -30,42 +26,37 @@ class TvShowRepository @Inject constructor(private val database: DatabaseContrac
     private val searchFavouriteResult = MediatorLiveData<Resource<PagedList<TvShow>>>()
     private val detailsResult = MediatorLiveData<Resource<TvShowDetails>>()
 
-
     private val pageListConfig = PagedList.Config.Builder()
         .setPageSize(20)
-        .setPrefetchDistance(10)
         .build()
 
     fun getPopularTvShowList(language: String, isRequiredToLoad: Boolean): LiveData<Resource<PagedList<TvShow>>> {
         if (!isRequiredToLoad)  return popularResult
         popularResult.value = Resource.create()
-        page = 1
         MovieDbApiService.tvShowService().getPopularTvShowList(language = language, page = page.toString())
             .enqueue(object : Callback<TvShowsList> {
                 override fun onFailure(call: Call<TvShowsList>, t: Throwable) {
-                    loadPopularFromDb(popularResult, true)
+                    loadPopularFromDb(true)
                 }
 
                 override fun onResponse(call: Call<TvShowsList>, response: Response<TvShowsList>) {
                     if (response.isSuccessful){
                         response.body()?.showsList?.let {tvShowList ->
                             database.deletePopularTvShows()
-                            database.insertPopularTvShowList(tvShowList){
-                                loadPopularFromDb(popularResult, false)
+                            tvShowList.forEach { it.tvShowType = TYPE_POPULAR }
+                            database.insertTvShowList(tvShowList){
+                                loadPopularFromDb(false)
                             }
                         }
                     }else {
-                        loadPopularFromDb(popularResult, true)
+                        loadPopularFromDb(true)
                     }
                 }
             })
         return popularResult
     }
 
-    private fun loadPopularFromDb(
-        popularResult: MediatorLiveData<Resource<PagedList<TvShow>>>,
-        isNetworkError: Boolean
-    ){
+    private fun loadPopularFromDb(isNetworkError: Boolean){
         val factory = database.getPopularTvShowList()
         val boundaryCallback = PopularBoundaryCallback(database)
         val networkError = boundaryCallback.networkError
@@ -92,33 +83,30 @@ class TvShowRepository @Inject constructor(private val database: DatabaseContrac
     ): LiveData<Resource<PagedList<TvShow>>> {
         if (!isRequiredToLoad) return latestResult
         latestResult.value = Resource.create()
-        page = 1
         MovieDbApiService.tvShowService().getLatestTvShowList(currentDate = currentDate, language = language, page = page.toString())
             .enqueue(object : Callback<TvShowsList> {
                 override fun onFailure(call: Call<TvShowsList>, t: Throwable) {
-                    loadLatestFromDb(latestResult, true)
+                    loadLatestFromDb(true)
                 }
 
                 override fun onResponse(call: Call<TvShowsList>, response: Response<TvShowsList>) {
                     if (response.isSuccessful){
                         response.body()?.showsList?.let {tvShowList ->
                             database.deleteLatestTvShows()
-                            database.insertLatestTvShowList(tvShowList){
-                                loadLatestFromDb(latestResult, false)
+                            tvShowList.forEach { it.tvShowType = TYPE_LATEST }
+                            database.insertTvShowList(tvShowList){
+                                loadLatestFromDb(false)
                             }
                         }
                     }else {
-                        loadLatestFromDb(latestResult, true)
+                        loadLatestFromDb(true)
                     }
                 }
             })
         return latestResult
     }
 
-    private fun loadLatestFromDb(
-        latestResult: MediatorLiveData<Resource<PagedList<TvShow>>>,
-        isNetworkError: Boolean
-    ){
+    private fun loadLatestFromDb(isNetworkError: Boolean){
         val factory = database.getLatestTvShowList()
         val boundaryCallback = LatestBoundaryCallback(database)
         val networkError = boundaryCallback.networkError
@@ -126,14 +114,62 @@ class TvShowRepository @Inject constructor(private val database: DatabaseContrac
             .setBoundaryCallback(boundaryCallback)
             .build()
 
-        popularResult.addSource(networkError){
-            popularResult.value = Resource.createError(it)
+        latestResult.addSource(networkError){
+            latestResult.value = Resource.createError(it)
         }
         latestResult.addSource(tvShowListLiveData){ tvShowList ->
             if (isNetworkError){
                 latestResult.value = Resource.create(tvShowList, ERROR_MESSAGE_NETWORK_PROBLEM_1)
             } else {
                 latestResult.value = Resource.create(tvShowList)
+            }
+        }
+    }
+
+    fun searchTvShowsList(
+        query: String, language: String, isRequiredToLoad: Boolean
+    ): LiveData<Resource<PagedList<TvShow>>> {
+        if (!isRequiredToLoad) return searchResult
+        searchResult.value = Resource.create()
+        MovieDbApiService.tvShowService().searchTvShow(query = query, language = language, page = page.toString())
+            .enqueue(object : Callback<TvShowsList> {
+                override fun onFailure(call: Call<TvShowsList>, t: Throwable) {
+                    loadSearchResultFromDb(query, true)
+                }
+
+                override fun onResponse(call: Call<TvShowsList>, response: Response<TvShowsList>) {
+                    if (response.isSuccessful) {
+                        response.body()?.showsList?.let { tvShowList ->
+                            database.deleteSearchResult()
+                            tvShowList.forEach { it.tvShowType = TYPE_SEARCH }
+                            database.insertTvShowList(tvShowList){
+                                loadSearchResultFromDb(query, false)
+                            }
+                        }
+                    } else {
+                        loadSearchResultFromDb(query, false)
+                    }
+                }
+
+            })
+        return searchResult
+    }
+
+    private fun loadSearchResultFromDb(query: String, isNetworkError: Boolean){
+        val factory = database.getSearchResult()
+        val boundaryCallback = SearchBoundaryCallback(database, query)
+        val networkError = boundaryCallback.networkError
+        val tvShowListLiveData = LivePagedListBuilder(factory, pageListConfig)
+            .setBoundaryCallback(boundaryCallback)
+            .build()
+        searchResult.addSource(networkError){
+            searchResult.value = Resource.createError(it)
+        }
+        searchResult.addSource(tvShowListLiveData){ tvShowList ->
+            if (isNetworkError){
+                searchResult.value = Resource.create(tvShowList, ERROR_MESSAGE_NETWORK_PROBLEM_1)
+            } else {
+                searchResult.value = Resource.create(tvShowList)
             }
         }
     }
@@ -151,30 +187,9 @@ class TvShowRepository @Inject constructor(private val database: DatabaseContrac
         return favouriteResult
     }
 
-    fun searchTvShowsList(query: String, language: String): LiveData<Resource<PagedList<TvShow>>> {
-        searchResult.value = Resource.create()
-//        MovieDbApiService.tvShowService().searchTvShow(query = query, language = language)
-//            .enqueue(object : Callback<TvShowsList> {
-//                override fun onFailure(call: Call<TvShowsList>, t: Throwable) {
-//                    searchResult.value = Resource.createError(ERROR_MESSAGE_NETWORK_PROBLEM_2)
-//                }
-//
-//                override fun onResponse(call: Call<TvShowsList>, response: Response<TvShowsList>) {
-//                    if (response.isSuccessful) {
-//                        response.body()?.showsList?.let { tvShowList ->
-//
-//                            searchResult.value = Resource.create(pagedList)
-//                        }
-//                    }
-//                }
-//
-//            })
-        return searchResult
-    }
-
-    fun searchTvShowsListInFavourite(query: String) : LiveData<Resource<PagedList<TvShow>>> {
+    fun searchTvShowsListInFavourite(query: String, isRequiredToLoad: Boolean) : LiveData<Resource<PagedList<TvShow>>> {
+        if (!isRequiredToLoad) return searchFavouriteResult
         searchFavouriteResult.value = Resource.create()
-
         val factory = database.searchFavouriteTvShowsList(query)
         val tvShowLiveData = LivePagedListBuilder(factory, pageListConfig).build()
 
@@ -271,46 +286,6 @@ class TvShowRepository @Inject constructor(private val database: DatabaseContrac
     fun deleteTvShow(tvShowDetails: TvShowDetails){
         database.deleteTvShow(tvShowDetails)
         database.deleteFavouriteSeasonDetails(tvShowDetails.id)
-    }
-
-    fun getPopularNextPage(language: String) {
-        page++
-        MovieDbApiService.tvShowService().getPopularTvShowList(language = language, page = page.toString())
-            .enqueue(object : Callback<TvShowsList> {
-                override fun onFailure(call: Call<TvShowsList>, t: Throwable) {
-                    popularResult.value = Resource.createError(t.message ?: ERROR_MESSAGE)
-                }
-
-                override fun onResponse(call: Call<TvShowsList>, response: Response<TvShowsList>) {
-                    if (response.isSuccessful){
-                        response.body()?.showsList?.let {tvShowList ->
-                            database.insertPopularTvShowList(tvShowList){}
-                        }
-                    } else {
-                        popularResult.value = Resource.createError(response.message() ?: ERROR_MESSAGE)
-                    }
-                }
-            })
-    }
-
-    fun getLatestNextPage(currentDate: String, language: String) {
-        page++
-        MovieDbApiService.tvShowService().getLatestTvShowList(currentDate = currentDate, language = language, page = page.toString())
-            .enqueue(object : Callback<TvShowsList> {
-                override fun onFailure(call: Call<TvShowsList>, t: Throwable) {
-                    latestResult.value = Resource.createError(t.message ?: ERROR_MESSAGE)
-                }
-
-                override fun onResponse(call: Call<TvShowsList>, response: Response<TvShowsList>) {
-                    if (response.isSuccessful){
-                        response.body()?.showsList?.let {tvShowList ->
-                            database.insertLatestTvShowList(tvShowList){}
-                        }
-                    } else {
-                        latestResult.value = Resource.createError(response.message() ?: ERROR_MESSAGE)
-                    }
-                }
-            })
     }
 }
 
