@@ -1,40 +1,32 @@
 package com.example.tvshowreminder.backgroundwork
 
 import android.content.Context
-import androidx.work.Worker
+import android.util.Log
+import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.tvshowreminder.TvShowApplication
 import com.example.tvshowreminder.data.database.DatabaseContract
-import io.reactivex.disposables.Disposable
+import com.example.tvshowreminder.data.network.MovieDbApiService
 import javax.inject.Inject
 
-class BackgroundWorker (context: Context, params: WorkerParameters): Worker(context, params) {
+class BackgroundWorker (context: Context, params: WorkerParameters): CoroutineWorker(context, params) {
 
     @Inject
     lateinit var database: DatabaseContract
 
-    lateinit var disposable: Disposable
-
-    override fun doWork(): Result {
+    override suspend fun doWork(): Result {
         (applicationContext as TvShowApplication).appComponent.inject(this)
 
-//        disposable = database.getFavouriteTvShowList()
-//            .subscribe{favouriteList ->
-//                favouriteList.forEach { favouriteShow ->
-//                    MovieDbApiService.tvShowService().getTvShowDetails(favouriteShow.id)
-//                        .subscribe {tvShow ->
-//                            tvShow.nextEpisodeToAir?.airDate?.let {
-//                                applicationContext.setAlarm(tvShow)
-//                            }
-//
-//                        }
-//                }
-//             }
-        return Result.success()
-    }
+        val favouriteTvShowList = database.getFavouriteList()
 
-    override fun onStopped() {
-        super.onStopped()
-        disposable.dispose()
+        Log.d("mmm", "BackgroundWorker :  doWork --  ")
+        favouriteTvShowList.forEach { tvShow ->
+            val tvShowDetails = MovieDbApiService.tvShowService().getTvShowDetails(tvShow.id)
+
+            tvShowDetails.nextEpisodeToAir?.airDate?.let {
+                applicationContext.setAlarm(tvShowDetails)
+            }
+        }
+        return Result.success()
     }
 }

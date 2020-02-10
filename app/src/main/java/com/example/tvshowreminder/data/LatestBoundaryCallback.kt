@@ -8,20 +8,28 @@ import com.example.tvshowreminder.data.network.MovieDbApiService
 import com.example.tvshowreminder.util.TYPE_LATEST
 import com.example.tvshowreminder.data.pojo.general.TvShow
 import com.example.tvshowreminder.data.pojo.general.TvShowsList
+import com.example.tvshowreminder.util.TYPE_POPULAR
 import com.example.tvshowreminder.util.getCurrentDate
 import com.example.tvshowreminder.util.getDeviceLanguage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.lang.Exception
 
 class LatestBoundaryCallback(
-    private val database: DatabaseContract
+    private val repository: TvShowRepository
 ) : PagedList.BoundaryCallback<TvShow>() {
 
     private var page = 1
     private var isLoading = false
     private val language = getDeviceLanguage()
     private val currentDate = getCurrentDate()
+
+    private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
     private val _networkError = MutableLiveData<String>()
     val networkError: LiveData<String>
@@ -36,27 +44,23 @@ class LatestBoundaryCallback(
         if (isLoading) return
         isLoading = true
         page++
-
-        MovieDbApiService.tvShowService().getLatestTvShowList(currentDate = currentDate, language = language, page = page.toString())
-            .enqueue(object : Callback<TvShowsList> {
-                override fun onFailure(call: Call<TvShowsList>, t: Throwable) {
-                    _networkError.value = t.message
-                    isLoading = false
+        coroutineScope.launch {
+            try {
+                val response = MovieDbApiService.tvShowService()
+                    .getLatestTvShowList(currentDate = currentDate, language = language, page = page.toString())
+                val tvShowList = response.showsList
+                tvShowList.forEach {
+                    it.tvShowType = TYPE_LATEST
                 }
-
-                override fun onResponse(call: Call<TvShowsList>, response: Response<TvShowsList>) {
-                    if (response.isSuccessful){
-                        response.body()?.showsList?.let {tvShowList ->
-                            tvShowList.forEach { it.tvShowType = TYPE_LATEST }
-                            database.insertTvShowList(tvShowList){
-                                isLoading = false
-                            }
-                        }
-                    }else {
-                        isLoading = false
-                        _networkError.value = response.errorBody().toString()
-                    }
+                repository.insertTvShowList(tvShowList)
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main){
+                    _networkError.value = e.localizedMessage
                 }
-            })
+            } finally {
+                isLoading = false
+            }
+
+        }
     }
 }

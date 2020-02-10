@@ -3,14 +3,9 @@ package com.example.tvshowreminder.data.database
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
-import androidx.paging.DataSource
-import com.example.tvshowreminder.data.pojo.episode.Episode
 import com.example.tvshowreminder.data.pojo.season.SeasonDetails
 import com.example.tvshowreminder.data.pojo.general.TvShow
 import com.example.tvshowreminder.data.pojo.general.TvShowDetails
-import com.example.tvshowreminder.util.AppExecutors
-import io.reactivex.Completable
-import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -31,22 +26,16 @@ class DatabaseDataSource @Inject constructor(
     override fun getFavouriteTvShowList()
             = tvShowDatabase.tvShowDao().getFavouriteTvShowsList()
 
-    override fun deletePopularTvShows(){
-        AppExecutors.diskIO.execute {
+    override suspend fun deletePopularTvShows(){
             tvShowDatabase.tvShowDao().deletePopularTvShows()
-        }
     }
 
-    override fun deleteLatestTvShows(){
-        AppExecutors.diskIO.execute {
+    override suspend fun deleteLatestTvShows(){
             tvShowDatabase.tvShowDao().deleteLatestTvShows()
-        }
     }
 
-    override fun deleteSearchResult(){
-        AppExecutors.diskIO.execute {
+    override suspend fun deleteSearchResult(){
             tvShowDatabase.tvShowDao().deleteSearchResult()
-        }
     }
 
     override fun getFavouriteSeasonDetails(
@@ -63,48 +52,37 @@ class DatabaseDataSource @Inject constructor(
         return result
     }
 
-    override fun insertTvShowList(tvShowList: List<TvShow>, successCallback: () -> Unit) {
-        AppExecutors.diskIO.execute {
-            tvShowDatabase.tvShowDao().insertTvShowList(tvShowList).let {
-                AppExecutors.mainThread.execute {
-                    successCallback()
-                }
-            }
-        }
+    override suspend fun insertTvShowList(tvShowList: List<TvShow>) {
+            tvShowDatabase.tvShowDao().insertTvShowList(tvShowList)
     }
 
     override fun getTvShow(tvShowId: Int)  =
         tvShowDatabase.tvShowDao().getFavouriteTvShow(tvShowId)
 
-    override fun insertTvShow(tvShowDetails: TvShowDetails) {
-        AppExecutors.diskIO.execute {
+    override suspend fun insertTvShow(tvShowDetails: TvShowDetails) {
             tvShowDatabase.tvShowDao().insertTvShow(tvShowDetails)
-        }
     }
 
-    override fun deleteTvShow(tvShowDetails: TvShowDetails) {
-        AppExecutors.diskIO.execute {
+    override suspend fun deleteTvShow(tvShowDetails: TvShowDetails) {
             tvShowDatabase.tvShowDao().deleteTvShow(tvShowDetails)
-        }
     }
 
-    override fun insertFavouriteSeasonDetails(seasonDetails: SeasonDetails) {
-        AppExecutors.diskIO.execute {
+    override suspend fun insertFavouriteSeasonDetails(seasonDetails: SeasonDetails) {
             val tvShowId = seasonDetails.episodes?.get(0)?.showId
             seasonDetails.showId = tvShowId
             tvShowDatabase.tvShowDao().insertFavouriteSeasonDetails(seasonDetails)
             seasonDetails.episodes?.let {
                 tvShowDatabase.tvShowDao().insertEpisodes(it)
             }
-        }
     }
 
-    override fun deleteFavouriteSeasonDetails(tvShowId: Int) {
-        AppExecutors.diskIO.execute {
+    override suspend fun deleteFavouriteSeasonDetails(tvShowId: Int) {
             tvShowDatabase.tvShowDao().deleteFavouriteSeasonDetail(tvShowId)
-        }
     }
 
     override fun searchFavouriteTvShowsList(query: String)  =
         tvShowDatabase.tvShowDao().searchTvShowsList(query)
+
+
+    override suspend fun getFavouriteList() = tvShowDatabase.tvShowDao().getFavouriteList()
 }

@@ -92,5 +92,4 @@ class SeasonsFragment : Fragment(){
             }
         }
     }
-
 }

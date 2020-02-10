@@ -6,46 +6,43 @@ import com.example.tvshowreminder.data.pojo.general.TvShowDetails
 import com.example.tvshowreminder.util.LANGUAGE_RUS
 import com.example.tvshowreminder.util.SORT_BY_DATE_DESC
 import com.example.tvshowreminder.util.SORT_BY_POPULARITY_DESC
-import io.reactivex.Flowable
-import io.reactivex.Single
-import retrofit2.Call
 import retrofit2.http.*
 
 
 interface MovieDbApi {
 
     @GET("discover/tv")
-    fun getPopularTvShowList(
+    suspend fun getPopularTvShowList(
         @Query("sort_by") sortBy: String = SORT_BY_POPULARITY_DESC,
         @Query("language") language: String = LANGUAGE_RUS,
         @Query("page") page: String
-    ): Call<TvShowsList>
+    ): TvShowsList
 
     @GET("discover/tv")
-    fun getLatestTvShowList(
+    suspend fun getLatestTvShowList(
         @Query("sort_by") sortBy: String = SORT_BY_DATE_DESC,
         @Query("first_air_date.lte") currentDate: String,
         @Query("language") language: String = LANGUAGE_RUS,
         @Query("page") page: String
-    ): Call<TvShowsList>
+    ): TvShowsList
 
     @GET("search/tv")
-    fun searchTvShow(
+    suspend fun searchTvShow(
         @Query("query") query: String,
         @Query("language") language: String  = LANGUAGE_RUS,
         @Query("page") page: String  = "1"
-    ): Call<TvShowsList>
+    ): TvShowsList
 
     @GET("tv/{tv_id}")
-    fun getTvShowDetails(
+    suspend fun getTvShowDetails(
         @Path("tv_id") tv_id : Int,
         @Query("language") language: String  = LANGUAGE_RUS
-    ): Call<TvShowDetails>
+    ): TvShowDetails
 
     @GET("tv/{tv_id}/season/{season_number}")
-    fun getSeasonDetails(
+    suspend fun getSeasonDetails(
         @Path("tv_id") tv_id : Int,
         @Path("season_number") season_number : Int,
         @Query("language") language: String  = LANGUAGE_RUS
-    ): Call<SeasonDetails>
+    ): SeasonDetails
 }

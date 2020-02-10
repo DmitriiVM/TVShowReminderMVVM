@@ -20,20 +20,17 @@ interface TvShowDao {
     @Query("SELECT * FROM tv_shows WHERE tvShowType = 'search' ORDER BY popularity DESC")
     fun getSearchResult(): DataSource.Factory<Int, TvShow>
 
-    @Query("SELECT * FROM tv_shows WHERE tvShowType = 'search' ORDER BY popularity DESC")
-    fun getSearchResult1111111(): LiveData<List<TvShow>>
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertTvShowList(tvShowList: List<TvShow>)
+    suspend fun insertTvShowList(tvShowList: List<TvShow>)
 
     @Query("DELETE FROM tv_shows WHERE tvShowType = 'popular'")
-    fun deletePopularTvShows()
+    suspend fun deletePopularTvShows()
 
     @Query("DELETE FROM tv_shows WHERE tvShowType = 'latest'")
-    fun deleteLatestTvShows()
+    suspend fun deleteLatestTvShows()
 
     @Query("DELETE FROM tv_shows WHERE tvShowType = 'search'")
-    fun deleteSearchResult()
+    suspend fun deleteSearchResult()
 
     @Query("SELECT * FROM tv_show_details")
     fun getFavouriteTvShowsList(): DataSource.Factory<Int, TvShow>
@@ -45,10 +42,10 @@ interface TvShowDao {
     fun getFavouriteTvShow(tvShowId: Int): LiveData<TvShowDetails>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertTvShow(tvShowDetails: TvShowDetails)
+    suspend fun insertTvShow(tvShowDetails: TvShowDetails)
 
     @Delete
-    fun deleteTvShow(tvShowDetails: TvShowDetails)
+    suspend fun deleteTvShow(tvShowDetails: TvShowDetails)
 
     @Query("SELECT * FROM seasons_details WHERE show_id = :tvShowId AND season_number = :seasonNumber")
     fun getFavouriteSeasonDetails(tvShowId: Int, seasonNumber: Int): LiveData<SeasonDetails>
@@ -57,11 +54,14 @@ interface TvShowDao {
     fun getEpisodesForSeason(tvShowId: Int, seasonNumber: Int) : LiveData<List<Episode>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertFavouriteSeasonDetails(seasonDetails: SeasonDetails)
+    suspend fun insertFavouriteSeasonDetails(seasonDetails: SeasonDetails)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertEpisodes(episodes: List<Episode>)
+    suspend fun insertEpisodes(episodes: List<Episode>)
 
     @Query("DELETE FROM seasons_details WHERE id = :tvShowId")
-    fun deleteFavouriteSeasonDetail(tvShowId: Int)
+    suspend fun deleteFavouriteSeasonDetail(tvShowId: Int)
+
+    @Query("SELECT * FROM tv_show_details")
+    suspend fun getFavouriteList(): List<TvShow>
 }

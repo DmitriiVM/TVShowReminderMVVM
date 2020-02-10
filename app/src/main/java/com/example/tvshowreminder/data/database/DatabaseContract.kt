@@ -5,9 +5,6 @@ import androidx.paging.DataSource
 import com.example.tvshowreminder.data.pojo.season.SeasonDetails
 import com.example.tvshowreminder.data.pojo.general.TvShow
 import com.example.tvshowreminder.data.pojo.general.TvShowDetails
-import io.reactivex.Completable
-import io.reactivex.Flowable
-import io.reactivex.Single
 
 interface DatabaseContract {
 
@@ -15,22 +12,22 @@ interface DatabaseContract {
     fun getLatestTvShowList(): DataSource.Factory<Int, TvShow>
     fun getSearchResult(): DataSource.Factory<Int, TvShow>
 
-    fun deletePopularTvShows()
-    fun deleteLatestTvShows()
-    fun deleteSearchResult()
+    suspend fun deletePopularTvShows()
+    suspend fun deleteLatestTvShows()
+    suspend fun deleteSearchResult()
 
-    fun insertTvShowList(tvShowList: List<TvShow>, successCallback: () -> Unit)
+    suspend fun insertTvShowList(tvShowList: List<TvShow>)
 
     fun getFavouriteTvShowList(): DataSource.Factory<Int, TvShow>
     fun searchFavouriteTvShowsList(query: String): DataSource.Factory<Int, TvShow>
 
     fun getTvShow(tvShowId: Int): LiveData<TvShowDetails>
-    fun insertTvShow(tvShowDetails: TvShowDetails)
-    fun deleteTvShow(tvShowDetails: TvShowDetails)
+    suspend fun insertTvShow(tvShowDetails: TvShowDetails)
+    suspend fun deleteTvShow(tvShowDetails: TvShowDetails)
 
     fun getFavouriteSeasonDetails(tvShowId: Int, seasonNumber: Int): LiveData<SeasonDetails>
-    fun insertFavouriteSeasonDetails(seasonDetails: SeasonDetails)
-    fun deleteFavouriteSeasonDetails(tvShowId: Int)
+    suspend fun insertFavouriteSeasonDetails(seasonDetails: SeasonDetails)
+    suspend fun deleteFavouriteSeasonDetails(tvShowId: Int)
 
-
+    suspend fun getFavouriteList(): List<TvShow>
 }
