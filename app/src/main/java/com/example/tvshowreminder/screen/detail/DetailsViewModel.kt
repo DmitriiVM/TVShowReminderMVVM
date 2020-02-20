@@ -14,17 +14,18 @@ class DetailsViewModel @Inject constructor(private val repository: TvShowReposit
 
     private var job: Job = Job()
     private val coroutineScope = CoroutineScope(Dispatchers.IO + job)
-    private val detailsResult = MediatorLiveData<Resource<TvShowDetails>>()
+    internal val detailsResult = MediatorLiveData<Resource<TvShowDetails>>()
     private val language = getDeviceLanguage()
 
-    fun getTvShowDetails(tvId: Int, isRequiredToLoad: Boolean): LiveData<Resource<TvShowDetails>> {
-        if (!isRequiredToLoad) return detailsResult
+    fun getTvShowDetails(tvId: Int, isRestored: Boolean): LiveData<Resource<TvShowDetails>> {
+        if (isRestored) return detailsResult
         detailsResult.value = Resource.create()
 
         coroutineScope.launch {
             try {
                 val tvShowDetails =
                     MovieDbApiService.tvShowService().getTvShowDetails(tvId, language)
+
                 withContext(Dispatchers.Main){
                     detailsResult.value = Resource.create(tvShowDetails)
                 }

@@ -1,19 +1,10 @@
 package com.example.tvshowreminder.data
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
 import androidx.paging.DataSource
-import androidx.paging.LivePagedListBuilder
-import androidx.paging.PagedList
 import com.example.tvshowreminder.data.database.DatabaseContract
-import com.example.tvshowreminder.data.network.MovieDbApiService
 import com.example.tvshowreminder.data.pojo.general.*
 import com.example.tvshowreminder.data.pojo.season.SeasonDetails
-import com.example.tvshowreminder.util.*
-import kotlinx.coroutines.*
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import javax.inject.Inject
 
 class TvShowRepository @Inject constructor(val database: DatabaseContract) {

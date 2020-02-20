@@ -83,6 +83,5 @@ class DatabaseDataSource @Inject constructor(
     override fun searchFavouriteTvShowsList(query: String)  =
         tvShowDatabase.tvShowDao().searchTvShowsList(query)
 
-
     override suspend fun getFavouriteList() = tvShowDatabase.tvShowDao().getFavouriteList()
 }

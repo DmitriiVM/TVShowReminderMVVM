@@ -1,11 +1,7 @@
 apply plugin: 'com.android.application'
-
 apply plugin: 'kotlin-android'
-
 apply plugin: 'kotlin-kapt'
-
 apply plugin: 'kotlin-android-extensions'
-
 apply plugin: "androidx.navigation.safeargs.kotlin"
 
 
@@ -76,6 +72,7 @@ dependencies {
 
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0"
     kapt "androidx.lifecycle:lifecycle-compiler:2.2.0"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-savedstate:2.2.0"
 
     implementation "androidx.paging:paging-runtime:2.1.1"
 

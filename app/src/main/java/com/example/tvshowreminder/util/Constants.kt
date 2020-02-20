@@ -23,9 +23,11 @@ const val REQUEST_CODE_SETTINGS = 555
 
 const val KEY_MENU_ITEM_ID = "menu_item_id"
 const val KEY_QUERY = "query"
-const val KEY_PAGE = "page"
 const val KEY_TV_SHOW_DETAIL = "tv_show_detail"
 const val KEY_TV_SHOW_NOTIFICATION = "tv_show_notification"
+const val KEY_SUCCESS_STATE = "success_state"
+const val KEY_RECYCLER_VIEW_STATE = "recycler_view_state"
+const val KEY_PAGE = "page"
 
 const val KEY_TV_ID = "tv_id"
 const val KEY_NUMBER_OF_SEASONS = "number_of_seasons"

@@ -15,8 +15,8 @@ enum class ErrorImageOrientation{
 
 internal fun ImageView.setImage(posterPath: String, orientation: ErrorImageOrientation){
 
-
     val requestOptions = RequestOptions()
+
     when (orientation){
         HORIZONTAL -> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){

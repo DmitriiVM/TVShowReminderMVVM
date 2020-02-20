@@ -1,26 +1,21 @@
 package com.example.tvshowreminder.screen.main
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
+import androidx.paging.DataSource
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
-import com.example.tvshowreminder.data.LatestBoundaryCallback
-import com.example.tvshowreminder.data.PopularBoundaryCallback
-import com.example.tvshowreminder.data.SearchBoundaryCallback
-import com.example.tvshowreminder.data.TvShowRepository
-import com.example.tvshowreminder.data.database.DatabaseContract
+import com.example.tvshowreminder.data.*
 import com.example.tvshowreminder.data.network.MovieDbApiService
 import com.example.tvshowreminder.data.pojo.general.TvShow
 import com.example.tvshowreminder.util.*
 import kotlinx.coroutines.*
 import javax.inject.Inject
 
-class MainViewModel @Inject constructor(private val repository: TvShowRepository, private val database: DatabaseContract) : ViewModel() {
-
-
-    private var page = 1
+class MainViewModel @Inject constructor(
+    private val repository: TvShowRepository
+) : ViewModel() {
 
     private var job: Job = Job()
     private val coroutineScope = CoroutineScope(Dispatchers.IO + job)
@@ -28,6 +23,8 @@ class MainViewModel @Inject constructor(private val repository: TvShowRepository
     private val pageListConfig = PagedList.Config.Builder()
         .setPageSize(20)
         .build()
+
+    var page = 1
 
     private val popularResult = MediatorLiveData<Resource<PagedList<TvShow>>>()
     private val latestResult = MediatorLiveData<Resource<PagedList<TvShow>>>()
@@ -38,14 +35,22 @@ class MainViewModel @Inject constructor(private val repository: TvShowRepository
     private val language = getDeviceLanguage()
     private val currentDate = getCurrentDate()
 
-    fun getPopularTvShowList(isRequiredToLoad: Boolean): LiveData<Resource<PagedList<TvShow>>> {
-        if (!isRequiredToLoad)  return popularResult
+    fun getPopularTvShowList(isRestored: Boolean): LiveData<Resource<PagedList<TvShow>>> {
+        if (isRestored) {
+            if (popularResult.value == null){
+                coroutineScope.launch {
+                    loadPopularFromDb(false)
+                }
+            }
+            return popularResult
+        }
+
         popularResult.value = Resource.create()
 
         coroutineScope.launch {
             try {
                 val response = MovieDbApiService.tvShowService()
-                    .getPopularTvShowList(language = language, page = page.toString())
+                    .getPopularTvShowList(language = language, page = "1")
                 val tvShowList = response.showsList
                 repository.deletePopularTvShows()
                 tvShowList.forEach {
@@ -62,36 +67,29 @@ class MainViewModel @Inject constructor(private val repository: TvShowRepository
 
     private suspend fun loadPopularFromDb(isNetworkError: Boolean){
         val factory = repository.getPopularTvShowList()
-        val boundaryCallback = PopularBoundaryCallback(repository)
-        val networkError = boundaryCallback.networkError
-        val tvShowListLiveData = LivePagedListBuilder(factory, pageListConfig)
-            .setBoundaryCallback(boundaryCallback)
-            .build()
-
-        withContext(Dispatchers.Main){
-            popularResult.addSource(networkError){
-                popularResult.value = Resource.createError(it)
-            }
-            popularResult.addSource(tvShowListLiveData){ tvShowList ->
-                if (isNetworkError){
-                    popularResult.value = Resource.create(tvShowList, ERROR_MESSAGE_NETWORK_PROBLEM_1)
-                } else {
-                    popularResult.value = Resource.create(tvShowList)
-                }
-            }
-        }
+        val boundaryCallback = PopularBoundaryCallback(repository, page)
+        loadFromDb(popularResult, factory, boundaryCallback, isNetworkError)
     }
 
     fun getLatestTvShowList(
-        isRequiredToLoad: Boolean
+        isRestored: Boolean
     ): LiveData<Resource<PagedList<TvShow>>> {
-        if (!isRequiredToLoad) return latestResult
+
+        if (isRestored) {
+            if (latestResult.value == null){
+                coroutineScope.launch {
+                    loadLatestFromDb(false)
+                }
+            }
+            return latestResult
+        }
+
         latestResult.value = Resource.create()
 
         coroutineScope.launch {
             try {
                 val response = MovieDbApiService.tvShowService()
-                    .getLatestTvShowList(currentDate = currentDate, language = language, page = page.toString())
+                    .getLatestTvShowList(currentDate = currentDate, language = language, page = "1")
                 val tvShowList = response.showsList
                 repository.deleteLatestTvShows()
                 tvShowList.forEach {
@@ -108,45 +106,42 @@ class MainViewModel @Inject constructor(private val repository: TvShowRepository
 
     private suspend fun loadLatestFromDb(isNetworkError: Boolean){
         val factory = repository.getLatestTvShowList()
-        val boundaryCallback = LatestBoundaryCallback(repository)
-        val networkError = boundaryCallback.networkError
-        val tvShowListLiveData = LivePagedListBuilder(factory, pageListConfig)
-            .setBoundaryCallback(boundaryCallback)
-            .build()
-
-        withContext(Dispatchers.Main){
-            latestResult.addSource(networkError){
-                latestResult.value = Resource.createError(it)
-            }
-            latestResult.addSource(tvShowListLiveData){ tvShowList ->
-                if (isNetworkError){
-                    latestResult.value = Resource.create(tvShowList, ERROR_MESSAGE_NETWORK_PROBLEM_1)
-                } else {
-                    latestResult.value = Resource.create(tvShowList)
-                }
-            }
-        }
+        val boundaryCallback = LatestBoundaryCallback(repository, page)
+        loadFromDb(latestResult, factory, boundaryCallback, isNetworkError)
     }
 
     fun searchTvShowsList(
-        query: String, isRequiredToLoad: Boolean
+        query: String, isRestored: Boolean
     ): LiveData<Resource<PagedList<TvShow>>> {
-        if (!isRequiredToLoad) return searchResult
+
+        if (isRestored) {
+            if (searchResult.value == null){
+                coroutineScope.launch {
+                    loadSearchResultFromDb(query, false)
+                }
+            }
+            return searchResult
+        }
+
         searchResult.value = Resource.create()
 
         coroutineScope.launch {
             try {
                 val response = MovieDbApiService.tvShowService()
-                    .searchTvShow(query = query, language = language, page = page.toString())
+                    .searchTvShow(query = query, language = language, page = "1")
                 val tvShowList = response.showsList
-                repository.deleteSearchResult()
-                tvShowList.forEach {
-                    it.tvShowType = TYPE_SEARCH
+                if (tvShowList.isNullOrEmpty()){
+                    searchResult.postValue(Resource.createError(MESSAGE_NO_SEARCH_MATCHES))
+                } else {
+                    repository.deleteSearchResult()
+                    tvShowList.forEach {
+                        it.tvShowType = TYPE_SEARCH
+                    }
+                    repository.insertTvShowList(tvShowList)
+                    loadSearchResultFromDb(query, false)
                 }
-                repository.insertTvShowList(tvShowList)
-                loadSearchResultFromDb(query, false)
             } catch (e: Exception) {
-                loadSearchResultFromDb(query, true)
+                searchResult.postValue(Resource.createError(ERROR_MESSAGE_NETWORK_PROBLEM_2))
             }
         }
         return searchResult
@@ -154,30 +149,12 @@ class MainViewModel @Inject constructor(private val repository: TvShowRepository
 
     private suspend fun loadSearchResultFromDb(query: String, isNetworkError: Boolean) {
         val factory = repository.getSearchResult()
-        val boundaryCallback = SearchBoundaryCallback(repository, query)
-        val networkError = boundaryCallback.networkError
-        val tvShowListLiveData = LivePagedListBuilder(factory, pageListConfig)
-            .setBoundaryCallback(boundaryCallback)
-            .build()
-
-        withContext(Dispatchers.Main) {
-
-            searchResult.addSource(networkError) {
-                searchResult.value = Resource.createError(it)
-            }
-            searchResult.addSource(tvShowListLiveData) { tvShowList ->
-                if (isNetworkError) {
-                    searchResult.value =
-                        Resource.create(tvShowList, ERROR_MESSAGE_NETWORK_PROBLEM_1)
-                } else {
-                    searchResult.value = Resource.create(tvShowList)
-                }
-            }
-        }
+        val boundaryCallback = SearchBoundaryCallback(repository, query, page)
+        loadFromDb(searchResult, factory, boundaryCallback, isNetworkError)
     }
 
-    fun getFavouriteTvShowList(isRequiredToLoad: Boolean) : LiveData<Resource<PagedList<TvShow>>> {
-        if (!isRequiredToLoad) return favouriteResult
+    fun getFavouriteTvShowList(isRestored: Boolean) : LiveData<Resource<PagedList<TvShow>>> {
+        if (isRestored && favouriteResult.value != null) return favouriteResult
         favouriteResult.value = Resource.create()
 
         val factory = repository.getFavouriteTvShowList()
@@ -185,23 +162,54 @@ class MainViewModel @Inject constructor(private val repository: TvShowRepository
             .build()
 
         favouriteResult.addSource(tvShowsLiveData){ tvShowDetailsList ->
-            favouriteResult.value = Resource.create(tvShowDetailsList)
+            if (tvShowDetailsList.isNullOrEmpty()){
+                favouriteResult.value = Resource.createError(MESSAGE_NO_TVSHOWS_IN_LIST)
+            } else {
+                favouriteResult.value = Resource.create(tvShowDetailsList)
+            }
         }
         return favouriteResult
     }
 
-    fun searchTvShowsListInFavourite(query: String, isRequiredToLoad: Boolean) : LiveData<Resource<PagedList<TvShow>>> {
-        if (!isRequiredToLoad) return searchFavouriteResult
+    fun searchTvShowsListInFavourite(query: String, isRestored: Boolean) : LiveData<Resource<PagedList<TvShow>>> {
+        if (isRestored && searchFavouriteResult.value != null) return searchFavouriteResult
         searchFavouriteResult.value = Resource.create()
         val factory = repository.searchFavouriteTvShowsList(query)
         val tvShowLiveData = LivePagedListBuilder(factory, pageListConfig).build()
 
         searchFavouriteResult.addSource(tvShowLiveData){ tvShowList ->
-            searchFavouriteResult.value = Resource.create(tvShowList)
+            if (tvShowList.isNullOrEmpty()){
+                searchFavouriteResult.value = Resource.createError(MESSAGE_NO_SEARCH_MATCHES)
+            } else {
+                searchFavouriteResult.value = Resource.create(tvShowList)
+            }
         }
         return searchFavouriteResult
     }
 
+
+    private suspend fun loadFromDb(result: MediatorLiveData<Resource<PagedList<TvShow>>>,
+                                   factory: DataSource.Factory<Int, TvShow>,
+                                   boundaryCallback: BoundaryCallback,
+                                   isNetworkError: Boolean){
+        val networkError = boundaryCallback.networkError
+        val tvShowListLiveData = LivePagedListBuilder(factory, pageListConfig)
+            .setBoundaryCallback(boundaryCallback)
+            .build()
+
+        withContext(Dispatchers.Main){
+            result.addSource(networkError){
+                result.value = Resource.createError(it)
+            }
+            result.addSource(tvShowListLiveData){ tvShowList ->
+                if (isNetworkError){
+                    result.value = Resource.create(tvShowList, ERROR_MESSAGE_NETWORK_PROBLEM_1)
+                } else {
+                    result.value = Resource.create(tvShowList)
+                }
+            }
+        }
+    }
 
     override fun onCleared() {
         super.onCleared()

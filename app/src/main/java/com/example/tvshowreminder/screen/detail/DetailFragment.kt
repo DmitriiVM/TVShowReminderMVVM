@@ -49,15 +49,23 @@ class DetailFragment : Fragment() {
 
         tvShowId?.let {
             if (savedInstanceState == null){
-                subscribeObserver(it, true)
-            } else {
                 subscribeObserver(it, false)
+            } else {
+                subscribeObserver(it, true)
+                handleProcessDeath(it, savedInstanceState)
             }
         }
     }
 
-    private fun subscribeObserver(tvId: Int, isRequiredToLoad: Boolean) {
-        viewModel.getTvShowDetails(tvId, isRequiredToLoad).observe(viewLifecycleOwner, Observer {resource ->
+    private fun handleProcessDeath(tvShowId: Int, savedInstanceState: Bundle){
+        val success = savedInstanceState.getParcelable<TvShowDetails>(KEY_SUCCESS_STATE)
+        success?.let {
+            viewModel.detailsResult.value = Resource.create(it)
+        }
+    }
+
+    private fun subscribeObserver(tvId: Int, isRestored: Boolean) {
+        viewModel.getTvShowDetails(tvId, isRestored).observe(viewLifecycleOwner, Observer { resource ->
             when (resource){
                 is Resource.Loading -> {
                     progress_bar.visibility = View.VISIBLE
@@ -127,6 +135,11 @@ class DetailFragment : Fragment() {
 
     fun showError(errorMessage: String) {
         Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putParcelable(KEY_SUCCESS_STATE, (viewModel.detailsResult.value as Resource.Success<TvShowDetails>).data)
     }
 
     companion object {

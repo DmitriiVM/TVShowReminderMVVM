@@ -7,6 +7,7 @@ import androidx.work.WorkerParameters
 import com.example.tvshowreminder.TvShowApplication
 import com.example.tvshowreminder.data.database.DatabaseContract
 import com.example.tvshowreminder.data.network.MovieDbApiService
+import com.example.tvshowreminder.util.getDeviceLanguage
 import javax.inject.Inject
 
 class BackgroundWorker (context: Context, params: WorkerParameters): CoroutineWorker(context, params) {
@@ -19,9 +20,8 @@ class BackgroundWorker (context: Context, params: WorkerParameters): CoroutineWo
 
         val favouriteTvShowList = database.getFavouriteList()
 
-        Log.d("mmm", "BackgroundWorker :  doWork --  ")
         favouriteTvShowList.forEach { tvShow ->
-            val tvShowDetails = MovieDbApiService.tvShowService().getTvShowDetails(tvShow.id)
+            val tvShowDetails = MovieDbApiService.tvShowService().getTvShowDetails(tvShow.id, getDeviceLanguage())
 
             tvShowDetails.nextEpisodeToAir?.airDate?.let {
                 applicationContext.setAlarm(tvShowDetails)
