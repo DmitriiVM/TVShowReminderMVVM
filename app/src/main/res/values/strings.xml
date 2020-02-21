@@ -2,9 +2,12 @@
     <string name="app_name">TVShowReminder</string>
 
     <string name="about_app">\t\tПриложение позволяет получать уведомления о выходе новых серий сериалов, на которые пользователь подписался.
-        Список сериалов, уведомления которых будет получено, находится в разделе "Мой список".
+        Список сериалов, уведомления которых будет получены, находится в разделе "Мой список".
         \n\t\tУведомление будет получено, даже если приложение не запущено.
     \n\t\tПриложение использует данные с сайта www.themoviedb.org.</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="option_menu_search">Поиск</string>
     <string name="options_menu_settings">Настройки</string>

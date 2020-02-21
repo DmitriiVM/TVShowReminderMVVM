@@ -6,12 +6,18 @@ import android.app.TaskStackBuilder
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.example.tvshowreminder.R
 import com.example.tvshowreminder.data.pojo.general.TvShowDetails
 import com.example.tvshowreminder.screen.detail.DetailActivity
 import com.example.tvshowreminder.util.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.*
 
 internal fun Context.setAlarm(tvShow: TvShowDetails) {
@@ -40,25 +46,38 @@ internal fun Context.cancelAlarm(id: Int) {
 
 internal fun showNotification(context: Context, tvShow: TvShowDetails) {
 
-    val intent = Intent(context, DetailActivity::class.java)
-    intent.putExtra(INTENT_EXTRA_TV_SHOW_ID, tvShow.id)
+    CoroutineScope(Dispatchers.Default).launch {
 
-    val taskStackBuilder = TaskStackBuilder.create(context)
-    taskStackBuilder
-        .addNextIntentWithParentStack(intent)
-    val pendingIntent = taskStackBuilder.getPendingIntent(tvShow.id, PendingIntent.FLAG_UPDATE_CURRENT)
+        val futureTarget = Glide.with(context)
+            .asBitmap()
+            .load(BASE_IMAGE_URL + tvShow.posterPath)
+            .submit()
 
-    val notification = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_TV_SHOW)
-        .setSmallIcon(R.drawable.ic_movie_black_24dp)
-        .setContentTitle(context.getString(R.string.notification_content_title))
-        .setContentText("${tvShow.name}. ${context.getString(R.string.notification_text_1)} " +
-                "${tvShow.nextEpisodeToAir?.seasonNumber}, " +
-                "${context.getString(R.string.notification_text_2)} " +
-                "${tvShow.nextEpisodeToAir?.episodeNumber}.")
-        .setPriority(NotificationCompat.PRIORITY_HIGH)
-        .setAutoCancel(true)
-        .setContentIntent(pendingIntent)
-        .build()
+        val intent = Intent(context, DetailActivity::class.java)
+        intent.putExtra(INTENT_EXTRA_TV_SHOW_ID, tvShow.id)
 
-    NotificationManagerCompat.from(context).notify(tvShow.id, notification)
+        val taskStackBuilder = TaskStackBuilder.create(context)
+        taskStackBuilder
+            .addNextIntentWithParentStack(intent)
+        val pendingIntent =
+            taskStackBuilder.getPendingIntent(tvShow.id, PendingIntent.FLAG_UPDATE_CURRENT)
+
+        val notification = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_TV_SHOW)
+            .setSmallIcon(R.drawable.ic_movie_black_24dp)
+            .setLargeIcon(futureTarget.get())
+            .setContentTitle(context.getString(R.string.notification_content_title))
+            .setContentText(
+                "${tvShow.name}. ${context.getString(R.string.notification_text_1)} " +
+                        "${tvShow.nextEpisodeToAir?.seasonNumber}, " +
+                        "${context.getString(R.string.notification_text_2)} " +
+                        "${tvShow.nextEpisodeToAir?.episodeNumber}."
+            )
+            .setAutoCancel(true)
+            .setContentIntent(pendingIntent)
+            .build()
+
+        NotificationManagerCompat.from(context).notify(tvShow.id, notification)
+    }
+
+
 }

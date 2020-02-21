@@ -10,9 +10,6 @@
         app:showAsAction="ifRoom|collapseActionView" />
 
     <item
-        android:id="@+id/popup_menu_settings"
-        android:title="@string/options_menu_settings" />
-    <item
         android:id="@+id/popup_menu_about"
         android:title="@string/options_menu_about" />
 

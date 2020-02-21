@@ -1,20 +1,20 @@
 package com.example.tvshowreminder.screen.main
 
-import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.GravityCompat
 import com.example.tvshowreminder.R
-import com.example.tvshowreminder.screen.settings.SettingsActivity
 import com.example.tvshowreminder.util.*
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.dialog_layout.view.*
 
-class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemSelectedListener {
+class MainActivity : AppCompatActivity() {
 
     private lateinit var searchView: SearchView
     private var query: String? = null
@@ -28,10 +28,46 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
         setSupportActionBar(toolbar)
         restoreState(savedInstanceState)
 
-        bottom_nav_view.setOnNavigationItemSelectedListener(this)
-        bottom_nav_view.selectedItemId = menuItemId
-
+        if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            setBottomNavigation()
+        } else {
+            setNavigationDrawer()
+        }
         isRestored = false
+    }
+
+    @Suppress("PLUGIN_WARNING")
+    private fun setNavigationDrawer() {
+        nav_view.setNavigationItemSelectedListener { item ->
+            drawer.closeDrawers()
+            setNavigation(item.itemId)
+        }
+        val toogle = ActionBarDrawerToggle(
+            this, drawer, toolbar,
+            R.string.navigation_drawer_open, R.string.navigation_drawer_close
+        )
+        drawer.addDrawerListener(toogle)
+        toogle.syncState()
+        showFragment(FRAGMENT_POPULAR, null)
+        nav_view.setCheckedItem(menuItemId)
+    }
+
+    @Suppress("PLUGIN_WARNING")
+    private fun setBottomNavigation() {
+        bottom_nav_view.setOnNavigationItemSelectedListener { item ->
+            setNavigation(item.itemId)
+        }
+        bottom_nav_view.selectedItemId = menuItemId
+    }
+
+    private fun setNavigation(item: Int): Boolean {
+        menuItemId = item
+        when (item) {
+            R.id.menu_item_popular -> showFragment(FRAGMENT_POPULAR, null)
+            R.id.menu_item_latest -> showFragment(FRAGMENT_LATEST, null)
+            R.id.menu_item_shows_to_follow -> showFragment(FRAGMENT_FAVOURITE, null)
+        }
+        return true
     }
 
     private fun restoreState(savedInstanceState: Bundle?) {
@@ -40,16 +76,6 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
             query = savedInstanceState.getString(KEY_QUERY)
             menuItemId = savedInstanceState.getInt(KEY_MENU_ITEM_ID)
         }
-    }
-
-    override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        menuItemId = item.itemId
-        when (item.itemId) {
-            R.id.menu_item_popular -> showFragment(FRAGMENT_POPULAR, null)
-            R.id.menu_item_latest -> showFragment(FRAGMENT_LATEST, null)
-            R.id.menu_item_shows_to_follow -> showFragment(FRAGMENT_FAVOURITE, null)
-        }
-        return true
     }
 
     private fun showFragment(fragmentType: String, query: String?) {
@@ -72,14 +98,14 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
         }
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
 
-            override fun onQueryTextSubmit(query1: String?): Boolean {
+            override fun onQueryTextSubmit(currentQuery: String?): Boolean {
                 searchItem.collapseActionView()
-                query1?.let {
-                    query = query1
-                    if (menuItemId == R.id.menu_item_shows_to_follow){
-                        showFragment(FRAGMENT_SEARCH_IN_FAVOURITE, query1)
+                currentQuery?.let {
+                    query = currentQuery
+                    if (menuItemId == R.id.menu_item_shows_to_follow) {
+                        showFragment(FRAGMENT_SEARCH_IN_FAVOURITE, currentQuery)
                     } else {
-                        showFragment(FRAGMENT_SEARCH, query1)
+                        showFragment(FRAGMENT_SEARCH, currentQuery)
                     }
                 }
                 return false
@@ -94,15 +120,9 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.popup_menu_settings -> showSettings()
             R.id.popup_menu_about -> showAboutInfo()
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    private fun showSettings() {
-        val intent = Intent(this, SettingsActivity::class.java)
-        startActivityForResult(intent, REQUEST_CODE_SETTINGS)
     }
 
     private fun showAboutInfo() {
@@ -119,5 +139,16 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
         super.onSaveInstanceState(outState)
         outState.putString(KEY_QUERY, searchView.query.toString())
         outState.putInt(KEY_MENU_ITEM_ID, menuItemId)
+    }
+
+    @Suppress("PLUGIN_WARNING")
+    override fun onBackPressed() {
+        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE &&
+            drawer.isDrawerOpen(GravityCompat.START)
+        ) {
+            drawer.closeDrawer(GravityCompat.START)
+        } else {
+            super.onBackPressed()
+        }
     }
 }
