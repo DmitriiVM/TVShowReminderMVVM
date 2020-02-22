@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
 import com.example.tvshowreminder.data.TvShowRepository
-import com.example.tvshowreminder.data.network.MovieDbApiService
 import com.example.tvshowreminder.data.pojo.season.SeasonDetails
 import com.example.tvshowreminder.util.Resource
 import com.example.tvshowreminder.util.getDeviceLanguage
@@ -26,7 +25,7 @@ class SeasonsViewModel @Inject constructor(private val repository: TvShowReposit
         coroutineScope.launch {
             try {
                 val seasonDetails =
-                    MovieDbApiService.tvShowService().getSeasonDetails(tvId, seasonNumber, language)
+                    repository.getSeasonDetails(tvId, seasonNumber, language)
                 withContext(Dispatchers.Main) {
                     seasonsResult.value = Resource.create(seasonDetails)
                 }

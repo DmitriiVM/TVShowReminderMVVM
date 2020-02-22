@@ -30,4 +30,5 @@ interface DatabaseContract {
     suspend fun deleteFavouriteSeasonDetails(tvShowId: Int)
 
     suspend fun getFavouriteList(): List<TvShow>
+    suspend fun deleteTvShowById(tvShowId: Int)
 }

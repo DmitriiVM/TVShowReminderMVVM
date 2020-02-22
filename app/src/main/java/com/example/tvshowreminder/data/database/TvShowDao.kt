@@ -47,6 +47,9 @@ interface TvShowDao {
     @Delete
     suspend fun deleteTvShow(tvShowDetails: TvShowDetails)
 
+    @Query("DELETE FROM tv_show_details WHERE id = :tvShowId")
+    suspend fun deleteTvShowById(tvShowId: Int)
+
     @Query("SELECT * FROM seasons_details WHERE show_id = :tvShowId AND season_number = :seasonNumber")
     fun getFavouriteSeasonDetails(tvShowId: Int, seasonNumber: Int): LiveData<SeasonDetails>
 
@@ -64,4 +67,5 @@ interface TvShowDao {
 
     @Query("SELECT * FROM tv_show_details")
     suspend fun getFavouriteList(): List<TvShow>
+
 }

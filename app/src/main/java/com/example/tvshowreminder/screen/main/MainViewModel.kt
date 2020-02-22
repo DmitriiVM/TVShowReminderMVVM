@@ -1,5 +1,6 @@
 package com.example.tvshowreminder.screen.main
 
+import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
@@ -7,7 +8,6 @@ import androidx.paging.DataSource
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import com.example.tvshowreminder.data.*
-import com.example.tvshowreminder.data.network.MovieDbApiService
 import com.example.tvshowreminder.data.pojo.general.TvShow
 import com.example.tvshowreminder.util.*
 import kotlinx.coroutines.*
@@ -49,7 +49,7 @@ class MainViewModel @Inject constructor(
 
         coroutineScope.launch {
             try {
-                val response = MovieDbApiService.tvShowService()
+                val response = repository
                     .getPopularTvShowList(language = language, page = "1")
                 val tvShowList = response.showsList
                 repository.deletePopularTvShows()
@@ -88,7 +88,7 @@ class MainViewModel @Inject constructor(
 
         coroutineScope.launch {
             try {
-                val response = MovieDbApiService.tvShowService()
+                val response = repository
                     .getLatestTvShowList(currentDate = currentDate, language = language, page = "1")
                 val tvShowList = response.showsList
                 repository.deleteLatestTvShows()
@@ -127,7 +127,7 @@ class MainViewModel @Inject constructor(
 
         coroutineScope.launch {
             try {
-                val response = MovieDbApiService.tvShowService()
+                val response = repository
                     .searchTvShow(query = query, language = language, page = "1")
                 val tvShowList = response.showsList
                 if (tvShowList.isNullOrEmpty()){
@@ -208,6 +208,12 @@ class MainViewModel @Inject constructor(
                     result.value = Resource.create(tvShowList)
                 }
             }
+        }
+    }
+
+    fun deleteFavouriteTvShow(tvShowId: Int) {
+        coroutineScope.launch {
+            repository.deleteTvShowById(tvShowId)
         }
     }
 

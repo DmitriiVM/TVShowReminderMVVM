@@ -20,6 +20,7 @@ class MainActivity : AppCompatActivity() {
     private var query: String? = null
     private var menuItemId = R.id.menu_item_popular
     private var isRestored = false
+    private var isAfterSearch = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,10 +58,12 @@ class MainActivity : AppCompatActivity() {
         bottom_nav_view.setOnNavigationItemSelectedListener { item ->
             setNavigation(item.itemId)
         }
-        bottom_nav_view.selectedItemId = menuItemId
+        showFragment(FRAGMENT_POPULAR, null)
     }
 
     private fun setNavigation(item: Int): Boolean {
+        if (menuItemId == item && !isAfterSearch) return false
+        isAfterSearch = false
         menuItemId = item
         when (item) {
             R.id.menu_item_popular -> showFragment(FRAGMENT_POPULAR, null)
@@ -108,6 +111,7 @@ class MainActivity : AppCompatActivity() {
                         showFragment(FRAGMENT_SEARCH, currentQuery)
                     }
                 }
+                isAfterSearch = true
                 return false
             }
 

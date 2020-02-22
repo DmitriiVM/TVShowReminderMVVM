@@ -5,6 +5,8 @@ import androidx.room.Room
 import com.example.tvshowreminder.data.database.DatabaseContract
 import com.example.tvshowreminder.data.database.DatabaseDataSource
 import com.example.tvshowreminder.data.database.TvShowDatabase
+import com.example.tvshowreminder.data.network.NetworkContract
+import com.example.tvshowreminder.data.network.NetworkDataSource
 import com.example.tvshowreminder.util.DB_NAME
 import dagger.Binds
 import dagger.Module
@@ -27,4 +29,7 @@ abstract class AppModule {
 
     @Binds
     abstract fun bindDatabaseContract(databaseContract: DatabaseDataSource): DatabaseContract
+
+    @Binds
+    abstract fun bindNetworkContract(networkContract: NetworkDataSource): NetworkContract
 }

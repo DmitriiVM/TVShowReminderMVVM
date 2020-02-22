@@ -67,6 +67,10 @@ class DatabaseDataSource @Inject constructor(
             tvShowDatabase.tvShowDao().deleteTvShow(tvShowDetails)
     }
 
+    override suspend fun deleteTvShowById(tvShowId: Int) {
+        tvShowDatabase.tvShowDao().deleteTvShowById(tvShowId)
+    }
+
     override suspend fun insertFavouriteSeasonDetails(seasonDetails: SeasonDetails) {
             val tvShowId = seasonDetails.episodes?.get(0)?.showId
             seasonDetails.showId = tvShowId

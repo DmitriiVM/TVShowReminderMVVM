@@ -2,7 +2,6 @@ package com.example.tvshowreminder.screen.detail
 
 import androidx.lifecycle.*
 import com.example.tvshowreminder.data.TvShowRepository
-import com.example.tvshowreminder.data.network.MovieDbApiService
 import com.example.tvshowreminder.data.pojo.general.TvShowDetails
 import com.example.tvshowreminder.util.Resource
 import com.example.tvshowreminder.util.getDeviceLanguage
@@ -24,7 +23,7 @@ class DetailsViewModel @Inject constructor(private val repository: TvShowReposit
         coroutineScope.launch {
             try {
                 val tvShowDetails =
-                    MovieDbApiService.tvShowService().getTvShowDetails(tvId, language)
+                    repository.getTvShowDetails(tvId, language)
 
                 withContext(Dispatchers.Main){
                     detailsResult.value = Resource.create(tvShowDetails)
@@ -50,7 +49,7 @@ class DetailsViewModel @Inject constructor(private val repository: TvShowReposit
             tvShowDetails.numberOfSeasons?.let {
                 for (i in 1..it) {
                     val seasonDetails =
-                        MovieDbApiService.tvShowService().getSeasonDetails(tvShowDetails.id, i)
+                        repository.getSeasonDetails(tvShowDetails.id, i, language)
                     repository.insertFavouriteSeasonDetails(seasonDetails)
                 }
             }
