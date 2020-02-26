@@ -3,13 +3,12 @@ package com.example.tvshowreminder.screen.detail.tabsfragments.adapters
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
+import com.example.tvshowreminder.R
+import com.example.tvshowreminder.TvShowApplication
 import com.example.tvshowreminder.data.pojo.general.TvShowDetails
 import com.example.tvshowreminder.screen.detail.tabsfragments.DescriptionFragment
 import com.example.tvshowreminder.screen.detail.tabsfragments.NewEpisodeFragment
 import com.example.tvshowreminder.screen.detail.tabsfragments.SeasonsFragment
-import com.example.tvshowreminder.util.TITLE_DESCRIPTION
-import com.example.tvshowreminder.util.TITLE_NEXT_EPISODE
-import com.example.tvshowreminder.util.TITLE_SEASONS
 
 class TabFragmentPageAdapter(
     fragmentManager: FragmentManager,
@@ -27,8 +26,8 @@ class TabFragmentPageAdapter(
     override fun getCount(): Int = 3
 
     override fun getPageTitle(position: Int): CharSequence?  = when (position){
-        0 -> TITLE_DESCRIPTION
-        1 -> TITLE_NEXT_EPISODE
-        else -> TITLE_SEASONS
+        0 -> TvShowApplication.context.getString(R.string.title_description)
+        1 -> TvShowApplication.context.getString(R.string.title_next_episode)
+        else -> TvShowApplication.context.getString(R.string.title_season)
     }
 }

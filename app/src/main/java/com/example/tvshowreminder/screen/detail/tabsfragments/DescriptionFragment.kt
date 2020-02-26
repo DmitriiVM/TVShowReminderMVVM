@@ -5,12 +5,9 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-
 import com.example.tvshowreminder.R
 import com.example.tvshowreminder.data.pojo.general.TvShowDetails
 import com.example.tvshowreminder.util.KEY_TV_SHOW_DETAIL
-import com.example.tvshowreminder.util.TEXT_NO
-import com.example.tvshowreminder.util.TEXT_YES
 import kotlinx.android.synthetic.main.fragment_description.*
 
 
@@ -36,7 +33,7 @@ class DescriptionFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         tvShowDetails?.apply {
             inProduction?.let {
-                text_view_in_production.text = if (it) TEXT_YES else TEXT_NO
+                text_view_in_production.text = if (it) getString(R.string.text_yes) else getString(R.string.text_no)
             }
             text_view_first_air_date.text = firstAirDate
             text_view_homepage.text = homepage

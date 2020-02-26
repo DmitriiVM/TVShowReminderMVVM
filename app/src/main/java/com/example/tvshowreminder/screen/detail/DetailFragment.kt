@@ -1,6 +1,5 @@
 package com.example.tvshowreminder.screen.detail
 
-
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -92,7 +91,7 @@ class DetailFragment : Fragment() {
 
     private fun setButtonWithAddFunction() {
         button_add_delete.apply {
-            text = BUTTON_ADD
+            text = getString(R.string.button_add)
             isEnabled = true
             setOnClickListener {
                 val tvShow = tvShowDetails
@@ -107,7 +106,7 @@ class DetailFragment : Fragment() {
 
      private fun setButtonWithDeleteFunction() {
         button_add_delete.apply {
-            text = BUTTON_DELETE
+            text = getString(R.string.button_delete)
             isEnabled = true
             setOnClickListener {
                 val tvShow = tvShowDetails

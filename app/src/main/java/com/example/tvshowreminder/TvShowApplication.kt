@@ -1,5 +1,6 @@
 package com.example.tvshowreminder
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -23,6 +24,7 @@ open class TvShowApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
+        context = this
 
         runWorkManager()
     }
@@ -51,5 +53,10 @@ open class TvShowApplication : Application() {
 
         WorkManager.getInstance(this)
             .enqueue(workerRequest)
+    }
+
+    companion object {
+        @SuppressLint("StaticFieldLeak")
+        lateinit var context: Context
     }
 }

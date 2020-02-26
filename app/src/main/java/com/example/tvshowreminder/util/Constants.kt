@@ -18,9 +18,6 @@ const val NOTIFICATION_CHANNEL_TV_SHOW = "notification_channel_tv_show"
 const val NOTIFICATION_CHANNEL_NAME = "Tv shows notification channel"
 const val NOTIFICATION_INTENT_EXTRA = "notification_intent_extra"
 
-const val REQUEST_CODE_RESULT = 444
-const val REQUEST_CODE_SETTINGS = 555
-
 const val KEY_MENU_ITEM_ID = "menu_item_id"
 const val KEY_QUERY = "query"
 const val KEY_TV_SHOW_DETAIL = "tv_show_detail"
@@ -45,20 +42,4 @@ const val FRAGMENT_LATEST = "latest"
 const val FRAGMENT_FAVOURITE = "favourite"
 const val FRAGMENT_SEARCH = "search"
 const val FRAGMENT_SEARCH_IN_FAVOURITE = "search_in_favourite"
-
-const val ERROR_MESSAGE= "Ошибка"
-const val ERROR_MESSAGE_NETWORK_PROBLEM_1 = "Проблема с получением данных через интернет. Показан список, сохраненный в предыдущем сеансе"
-const val ERROR_MESSAGE_NETWORK_PROBLEM_2 = "Проблема с получением данных через интернет"
-const val MESSAGE_NO_SEARCH_MATCHES = "По вашему запросу ничего не найдено"
-const val MESSAGE_NO_TVSHOWS_IN_LIST = "Список сериалов пуст"
-const val MESSAGE_SEARCH_NO_INTERNET = "Для поиска вы должны быть подключены к интернету"
-const val MESSAGE_DETAILS_WITH_NO_INTERNET = "Для просмотра информации о сериале вы должны быть подключены к интернету"
-
-const val BUTTON_ADD = "Добавить в список уведомлений"
-const val BUTTON_DELETE = "Удалить из списка уведомлений"
-const val TEXT_YES = "Да"
-const val TEXT_NO = "Нет"
-const val TITLE_DESCRIPTION = "Описание"
-const val TITLE_NEXT_EPISODE = "Следующая серия"
-const val TITLE_SEASONS = "Сезоны"
 

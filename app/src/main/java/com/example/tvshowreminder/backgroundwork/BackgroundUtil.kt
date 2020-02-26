@@ -6,11 +6,9 @@ import android.app.TaskStackBuilder
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
 import com.example.tvshowreminder.R
 import com.example.tvshowreminder.data.pojo.general.TvShowDetails
 import com.example.tvshowreminder.screen.detail.DetailActivity
@@ -67,9 +65,9 @@ internal fun showNotification(context: Context, tvShow: TvShowDetails) {
             .setLargeIcon(futureTarget.get())
             .setContentTitle(context.getString(R.string.notification_content_title))
             .setContentText(
-                "${tvShow.name}. ${context.getString(R.string.notification_text_1)} " +
+                "${tvShow.name}. ${context.getString(R.string.notification_text_season)} " +
                         "${tvShow.nextEpisodeToAir?.seasonNumber}, " +
-                        "${context.getString(R.string.notification_text_2)} " +
+                        "${context.getString(R.string.notification_text_episode)} " +
                         "${tvShow.nextEpisodeToAir?.episodeNumber}."
             )
             .setAutoCancel(true)

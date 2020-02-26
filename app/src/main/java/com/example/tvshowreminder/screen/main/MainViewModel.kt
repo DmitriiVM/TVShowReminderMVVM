@@ -1,12 +1,16 @@
 package com.example.tvshowreminder.screen.main
 
 import android.app.Application
+import android.content.res.Resources
+import android.provider.Settings
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
 import androidx.paging.DataSource
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
+import com.example.tvshowreminder.R
+import com.example.tvshowreminder.TvShowApplication
 import com.example.tvshowreminder.data.*
 import com.example.tvshowreminder.data.pojo.general.TvShow
 import com.example.tvshowreminder.util.*
@@ -131,7 +135,9 @@ class MainViewModel @Inject constructor(
                     .searchTvShow(query = query, language = language, page = "1")
                 val tvShowList = response.showsList
                 if (tvShowList.isNullOrEmpty()){
-                    searchResult.postValue(Resource.createError(MESSAGE_NO_SEARCH_MATCHES))
+                    searchResult.postValue(Resource.createError(
+                        TvShowApplication.context.getString(R.string.message_no_search_matches)
+                    ))
                 } else {
                     repository.deleteSearchResult()
                     tvShowList.forEach {
@@ -141,7 +147,9 @@ class MainViewModel @Inject constructor(
                     loadSearchResultFromDb(query, false)
                 }
             } catch (e: Exception) {
-                searchResult.postValue(Resource.createError(ERROR_MESSAGE_NETWORK_PROBLEM_2))
+                searchResult.postValue(Resource.createError(
+                    TvShowApplication.context.getString(R.string.error_network_problem_2)
+                ))
             }
         }
         return searchResult
@@ -163,7 +171,9 @@ class MainViewModel @Inject constructor(
 
         favouriteResult.addSource(tvShowsLiveData){ tvShowDetailsList ->
             if (tvShowDetailsList.isNullOrEmpty()){
-                favouriteResult.value = Resource.createError(MESSAGE_NO_TVSHOWS_IN_LIST)
+                favouriteResult.value = Resource.createError(
+                    TvShowApplication.context.getString(R.string.message_no_tv_shows)
+                )
             } else {
                 favouriteResult.value = Resource.create(tvShowDetailsList)
             }
@@ -179,7 +189,8 @@ class MainViewModel @Inject constructor(
 
         searchFavouriteResult.addSource(tvShowLiveData){ tvShowList ->
             if (tvShowList.isNullOrEmpty()){
-                searchFavouriteResult.value = Resource.createError(MESSAGE_NO_SEARCH_MATCHES)
+                searchFavouriteResult.value = Resource.createError(
+                    TvShowApplication.context.getString(R.string.message_no_search_matches))
             } else {
                 searchFavouriteResult.value = Resource.create(tvShowList)
             }
@@ -203,7 +214,8 @@ class MainViewModel @Inject constructor(
             }
             result.addSource(tvShowListLiveData){ tvShowList ->
                 if (isNetworkError){
-                    result.value = Resource.create(tvShowList, ERROR_MESSAGE_NETWORK_PROBLEM_1)
+                    result.value = Resource.create(tvShowList,
+                        TvShowApplication.context.getString(R.string.error_network_problem_1))
                 } else {
                     result.value = Resource.create(tvShowList)
                 }

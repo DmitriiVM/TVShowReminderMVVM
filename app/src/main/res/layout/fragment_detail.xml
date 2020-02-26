@@ -7,7 +7,6 @@
     android:background="#24262B"
     tools:context=".screen.detail.DetailFragment">
 
-
     <ImageView
         android:id="@+id/image_view_tvshow_detail"
         android:layout_width="match_parent"
