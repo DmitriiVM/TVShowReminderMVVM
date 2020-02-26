@@ -59,10 +59,11 @@ class MainActivity : AppCompatActivity() {
             setNavigation(item.itemId)
         }
         showFragment(FRAGMENT_POPULAR, null)
+        bottom_nav_view.selectedItemId = menuItemId
     }
 
     private fun setNavigation(item: Int): Boolean {
-        if (menuItemId == item && !isAfterSearch) return false
+        if (menuItemId == item && !isAfterSearch) return true
         isAfterSearch = false
         menuItemId = item
         when (item) {
