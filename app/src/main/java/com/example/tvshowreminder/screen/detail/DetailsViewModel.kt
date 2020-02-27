@@ -13,6 +13,7 @@ class DetailsViewModel @Inject constructor(private val repository: TvShowReposit
 
     private var job: Job = Job()
     private val coroutineScope = CoroutineScope(Dispatchers.IO + job)
+    private val coroutineInsertDeleteScope = CoroutineScope(Dispatchers.IO)
     internal val detailsResult = MediatorLiveData<Resource<TvShowDetails>>()
     private val language = getDeviceLanguage()
 
@@ -44,7 +45,7 @@ class DetailsViewModel @Inject constructor(private val repository: TvShowReposit
     fun insertTvShow(
         tvShowDetails: TvShowDetails
     ) {
-        coroutineScope.launch {
+        coroutineInsertDeleteScope.launch {
             repository.insertTvShow(tvShowDetails)
             tvShowDetails.numberOfSeasons?.let {
                 for (i in 1..it) {
@@ -57,7 +58,7 @@ class DetailsViewModel @Inject constructor(private val repository: TvShowReposit
     }
 
     fun deleteTvShow(tvShowDetails: TvShowDetails){
-        coroutineScope.launch {
+        coroutineInsertDeleteScope.launch {
             repository.deleteTvShow(tvShowDetails)
             repository.deleteFavouriteSeasonDetails(tvShowDetails.id)
         }

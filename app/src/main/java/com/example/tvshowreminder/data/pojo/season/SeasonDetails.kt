@@ -24,4 +24,10 @@ data class SeasonDetails @JvmOverloads constructor(
     val seasonNumber: Int?,
     @ColumnInfo(name = "show_id")
     var showId: Int? = null
-)
+)  {
+
+
+    override fun toString(): String {
+        return "SeasonDetails(airDate=$airDate, episodes=${episodes?.size}, id='$id', name=$name, overview=$overview, posterPath=$posterPath, seasonNumber=$seasonNumber, showId=$showId)"
+    }
+}
