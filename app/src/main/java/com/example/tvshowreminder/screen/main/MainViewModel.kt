@@ -49,7 +49,7 @@ class MainViewModel @Inject constructor(
             return popularResult
         }
 
-        popularResult.value = Resource.create()
+        popularResult.value = Resource.Loading()
 
         coroutineScope.launch {
             try {
@@ -88,7 +88,7 @@ class MainViewModel @Inject constructor(
             return latestResult
         }
 
-        latestResult.value = Resource.create()
+        latestResult.value = Resource.Loading()
 
         coroutineScope.launch {
             try {
@@ -127,7 +127,7 @@ class MainViewModel @Inject constructor(
             return searchResult
         }
 
-        searchResult.value = Resource.create()
+        searchResult.value = Resource.Loading()
 
         coroutineScope.launch {
             try {
@@ -135,7 +135,7 @@ class MainViewModel @Inject constructor(
                     .searchTvShow(query = query, language = language, page = "1")
                 val tvShowList = response.showsList
                 if (tvShowList.isNullOrEmpty()){
-                    searchResult.postValue(Resource.createError(
+                    searchResult.postValue(Resource.Error(
                         TvShowApplication.context.getString(R.string.message_no_search_matches)
                     ))
                 } else {
@@ -147,7 +147,7 @@ class MainViewModel @Inject constructor(
                     loadSearchResultFromDb(query, false)
                 }
             } catch (e: Exception) {
-                searchResult.postValue(Resource.createError(
+                searchResult.postValue(Resource.Error(
                     TvShowApplication.context.getString(R.string.error_network_problem_2)
                 ))
             }
@@ -163,7 +163,7 @@ class MainViewModel @Inject constructor(
 
     fun getFavouriteTvShowList(isRestored: Boolean) : LiveData<Resource<PagedList<TvShow>>> {
         if (isRestored && favouriteResult.value != null) return favouriteResult
-        favouriteResult.value = Resource.create()
+        favouriteResult.value = Resource.Loading()
 
         val factory = repository.getFavouriteTvShowList()
         val tvShowsLiveData = LivePagedListBuilder(factory, pageListConfig)
@@ -171,11 +171,11 @@ class MainViewModel @Inject constructor(
 
         favouriteResult.addSource(tvShowsLiveData){ tvShowDetailsList ->
             if (tvShowDetailsList.isNullOrEmpty()){
-                favouriteResult.value = Resource.createError(
+                favouriteResult.value = Resource.Error(
                     TvShowApplication.context.getString(R.string.message_no_tv_shows)
                 )
             } else {
-                favouriteResult.value = Resource.create(tvShowDetailsList)
+                favouriteResult.value = Resource.Success(tvShowDetailsList)
             }
         }
         return favouriteResult
@@ -183,16 +183,16 @@ class MainViewModel @Inject constructor(
 
     fun searchTvShowsListInFavourite(query: String, isRestored: Boolean) : LiveData<Resource<PagedList<TvShow>>> {
         if (isRestored && searchFavouriteResult.value != null) return searchFavouriteResult
-        searchFavouriteResult.value = Resource.create()
+        searchFavouriteResult.value = Resource.Loading()
         val factory = repository.searchFavouriteTvShowsList(query)
         val tvShowLiveData = LivePagedListBuilder(factory, pageListConfig).build()
 
         searchFavouriteResult.addSource(tvShowLiveData){ tvShowList ->
             if (tvShowList.isNullOrEmpty()){
-                searchFavouriteResult.value = Resource.createError(
+                searchFavouriteResult.value = Resource.Error(
                     TvShowApplication.context.getString(R.string.message_no_search_matches))
             } else {
-                searchFavouriteResult.value = Resource.create(tvShowList)
+                searchFavouriteResult.value = Resource.Success(tvShowList)
             }
         }
         return searchFavouriteResult
@@ -210,14 +210,14 @@ class MainViewModel @Inject constructor(
 
         withContext(Dispatchers.Main){
             result.addSource(networkError){
-                result.value = Resource.createError(it)
+                result.value = Resource.Error(it)
             }
             result.addSource(tvShowListLiveData){ tvShowList ->
                 if (isNetworkError){
-                    result.value = Resource.create(tvShowList,
+                    result.value = Resource.SuccessWithMessage(tvShowList,
                         TvShowApplication.context.getString(R.string.error_network_problem_1))
                 } else {
-                    result.value = Resource.create(tvShowList)
+                    result.value = Resource.Success(tvShowList)
                 }
             }
         }

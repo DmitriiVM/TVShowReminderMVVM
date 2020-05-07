@@ -59,7 +59,7 @@ class DetailFragment : Fragment() {
     private fun handleProcessDeath(tvShowId: Int, savedInstanceState: Bundle){
         val success = savedInstanceState.getParcelable<TvShowDetails>(KEY_SUCCESS_STATE)
         success?.let {
-            viewModel.detailsResult.value = Resource.create(it)
+            viewModel.detailsResult.value = Resource.Success(it)
         }
     }
 

@@ -20,14 +20,14 @@ class SeasonsViewModel @Inject constructor(private val repository: TvShowReposit
 
     fun getSeasonDetails(tvId: Int, seasonNumber: Int): LiveData<Resource<SeasonDetails>> {
         val seasonsResult = MediatorLiveData<Resource<SeasonDetails>>()
-        seasonsResult.value = Resource.create()
+        seasonsResult.value = Resource.Loading()
 
         coroutineScope.launch {
             try {
                 val seasonDetails =
                     repository.getSeasonDetails(tvId, seasonNumber, language)
                 withContext(Dispatchers.Main) {
-                    seasonsResult.value = Resource.create(seasonDetails)
+                    seasonsResult.value = Resource.Success(seasonDetails)
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
@@ -37,7 +37,7 @@ class SeasonsViewModel @Inject constructor(private val repository: TvShowReposit
                             seasonNumber
                         )
                     ) { seasonDetails ->
-                        seasonsResult.value = Resource.create(seasonDetails)
+                        seasonsResult.value = Resource.Success(seasonDetails)
                     }
                 }
 

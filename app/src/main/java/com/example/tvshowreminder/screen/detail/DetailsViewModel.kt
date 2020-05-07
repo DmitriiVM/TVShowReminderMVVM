@@ -19,7 +19,7 @@ class DetailsViewModel @Inject constructor(private val repository: TvShowReposit
 
     fun getTvShowDetails(tvId: Int, isRestored: Boolean): LiveData<Resource<TvShowDetails>> {
         if (isRestored) return detailsResult
-        detailsResult.value = Resource.create()
+        detailsResult.value = Resource.Loading()
 
         coroutineScope.launch {
             try {
@@ -27,13 +27,13 @@ class DetailsViewModel @Inject constructor(private val repository: TvShowReposit
                     repository.getTvShowDetails(tvId, language)
 
                 withContext(Dispatchers.Main){
-                    detailsResult.value = Resource.create(tvShowDetails)
+                    detailsResult.value = Resource.Success(tvShowDetails)
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     detailsResult.addSource(repository.getTvShow(tvId)) { tvShowList ->
                         tvShowList?.let {
-                            detailsResult.value = Resource.create(tvShowList)
+                            detailsResult.value = Resource.Success(tvShowList)
                         }
                     }
                 }

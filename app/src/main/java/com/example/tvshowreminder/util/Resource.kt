@@ -2,26 +2,7 @@ package com.example.tvshowreminder.util
 
 import kotlinx.android.parcel.RawValue
 
-
 sealed class Resource<T> {
-
-    companion object {
-        fun <T> create() : Resource<T>{
-            return Loading()
-        }
-
-        fun <T> createError(message: String) : Resource<T>{
-            return Error(message)
-        }
-
-        fun <T> create(data: T) : Resource<T>{
-            return Success(data)
-        }
-
-        fun <T> create(data: T, networkErrorMessage: String) : Resource<T>{
-            return SuccessWithMessage(data, networkErrorMessage)
-        }
-    }
 
     class Loading<T>() : Resource<T>()
     data class Error<T>(val message: String) : Resource<T>()

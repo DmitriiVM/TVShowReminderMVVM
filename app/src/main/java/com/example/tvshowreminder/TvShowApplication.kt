@@ -52,11 +52,13 @@ open class TvShowApplication : Application() {
             .build()
 
         WorkManager.getInstance(this)
-            .enqueue(workerRequest)
+            .enqueueUniquePeriodicWork(REFRESH_WORK, ExistingPeriodicWorkPolicy.KEEP, workerRequest)
     }
 
     companion object {
         @SuppressLint("StaticFieldLeak")
         lateinit var context: Context
+
+        private const val REFRESH_WORK = "refresh_work"
     }
 }
