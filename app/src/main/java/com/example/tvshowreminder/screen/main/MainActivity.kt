@@ -100,9 +100,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    @InternalCoroutinesApi
-    @FlowPreview
     @ExperimentalCoroutinesApi
+    @FlowPreview
+    @InternalCoroutinesApi
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.options_menu, menu)
 
@@ -114,27 +114,8 @@ class MainActivity : AppCompatActivity() {
             searchView.setQuery(query, false)
         }
 
-        val flow = callbackFlow<String> {
-            searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-                override fun onQueryTextSubmit(query: String?): Boolean {
-                    query?.let {
-                        offer(query)
-                    }
-                    return true
-                }
-
-                override fun onQueryTextChange(newText: String?): Boolean {
-                    newText?.let {
-                        offer(newText)
-                    }
-                    return true
-                }
-
-            })
-            awaitClose()
-        }
         lifecycleScope.launchWhenResumed {
-            flow.debounce(400).collect { currentQuery ->
+            searchView.asFlow().debounce(400).collect { currentQuery ->
                 if (currentQuery.isEmpty()) return@collect
                 Log.d("mmm", "MainActivity :  onCreate --  $currentQuery")
                 query = currentQuery
@@ -147,6 +128,29 @@ class MainActivity : AppCompatActivity() {
             }
         }
         return super.onCreateOptionsMenu(menu)
+    }
+
+    @InternalCoroutinesApi
+    @FlowPreview
+    @ExperimentalCoroutinesApi
+    private fun SearchView.asFlow() = callbackFlow<String> {
+        setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                query?.let {
+                    offer(query)
+                }
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                newText?.let {
+                    offer(newText)
+                }
+                return true
+            }
+
+        })
+        awaitClose()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
