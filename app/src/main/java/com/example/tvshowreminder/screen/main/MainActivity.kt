@@ -2,6 +2,7 @@ package com.example.tvshowreminder.screen.main
 
 import android.content.res.Configuration
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -9,10 +10,19 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.GravityCompat
+import androidx.lifecycle.lifecycleScope
 import com.example.tvshowreminder.R
 import com.example.tvshowreminder.util.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.dialog_layout.view.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.flow
 
 class MainActivity : AppCompatActivity() {
 
@@ -90,6 +100,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @InternalCoroutinesApi
+    @FlowPreview
+    @ExperimentalCoroutinesApi
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.options_menu, menu)
 
@@ -100,26 +113,39 @@ class MainActivity : AppCompatActivity() {
             searchItem.expandActionView()
             searchView.setQuery(query, false)
         }
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
 
-            override fun onQueryTextSubmit(currentQuery: String?): Boolean {
-                searchItem.collapseActionView()
-                currentQuery?.let {
-                    query = currentQuery
-                    if (menuItemId == R.id.menu_item_shows_to_follow) {
-                        showFragment(FRAGMENT_SEARCH_IN_FAVOURITE, currentQuery)
-                    } else {
-                        showFragment(FRAGMENT_SEARCH, currentQuery)
+        val flow = callbackFlow<String> {
+            searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    query?.let {
+                        offer(query)
                     }
+                    return true
+                }
+
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    newText?.let {
+                        offer(newText)
+                    }
+                    return true
+                }
+
+            })
+            awaitClose()
+        }
+        lifecycleScope.launchWhenResumed {
+            flow.debounce(400).collect { currentQuery ->
+                if (currentQuery.isEmpty()) return@collect
+                Log.d("mmm", "MainActivity :  onCreate --  $currentQuery")
+                query = currentQuery
+                if (menuItemId == R.id.menu_item_shows_to_follow) {
+                    showFragment(FRAGMENT_SEARCH_IN_FAVOURITE, currentQuery)
+                } else {
+                    showFragment(FRAGMENT_SEARCH, currentQuery)
                 }
                 isAfterSearch = true
-                return false
             }
-
-            override fun onQueryTextChange(newText: String?): Boolean {
-                return false
-            }
-        })
+        }
         return super.onCreateOptionsMenu(menu)
     }
 

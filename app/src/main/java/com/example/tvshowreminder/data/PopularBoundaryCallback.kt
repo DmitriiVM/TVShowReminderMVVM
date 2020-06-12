@@ -14,12 +14,6 @@ class PopularBoundaryCallback(
 
     override suspend fun getTvShowList(): TvShowsList {
         
-        val temp = MovieDbApiService.tvShowService()
-            .getPopularTvShowList(language = language, page = page.toString()).showsList
-        temp.forEach {
-            Log.d("mmm", "PopularBoundaryCallback :  getTvShowList --  $it")
-        }
-        
         return MovieDbApiService.tvShowService()
             .getPopularTvShowList(language = language, page = page.toString())
     }

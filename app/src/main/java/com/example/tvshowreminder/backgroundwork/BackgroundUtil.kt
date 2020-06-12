@@ -55,8 +55,7 @@ internal fun showNotification(context: Context, tvShow: TvShowDetails) {
         intent.putExtra(INTENT_EXTRA_TV_SHOW_ID, tvShow.id)
 
         val taskStackBuilder = TaskStackBuilder.create(context)
-        taskStackBuilder
-            .addNextIntentWithParentStack(intent)
+        taskStackBuilder.addNextIntentWithParentStack(intent)
         val pendingIntent =
             taskStackBuilder.getPendingIntent(tvShow.id, PendingIntent.FLAG_UPDATE_CURRENT)
 

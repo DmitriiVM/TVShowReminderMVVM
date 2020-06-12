@@ -43,10 +43,7 @@ class DatabaseDataSource @Inject constructor(
         result.addSource(tvShowDatabase.tvShowDao().getEpisodesForSeason(tvShowId, seasonNumber)){episodesList ->
             result.addSource(tvShowDatabase.tvShowDao().getFavouriteSeasonDetails(tvShowId, seasonNumber)){ seasonsDetail ->
 
-                if (seasonsDetail == null){
-                    Log.d("mmm", "DatabaseDataSource :  seasonsDetail --  null")
-                } else {
-                    Log.d("mmm", "DatabaseDataSource :  seasonsDetail --  not null")
+                if (seasonsDetail != null){
                     seasonsDetail.episodes = episodesList
                     result.value = seasonsDetail
                 }
@@ -77,7 +74,6 @@ class DatabaseDataSource @Inject constructor(
     override suspend fun insertFavouriteSeasonDetails(seasonDetails: SeasonDetails) {
         val tvShowId = seasonDetails.episodes?.get(0)?.showId
         seasonDetails.showId = tvShowId
-        Log.d("mmm", "DatabaseDataSource :  insertFavouriteSeasonDetails --  ${seasonDetails}")
         tvShowDatabase.tvShowDao().insertFavouriteSeasonDetails(seasonDetails)
         seasonDetails.episodes?.let {
             tvShowDatabase.tvShowDao().insertEpisodes(it)
